@@ -3,6 +3,7 @@ from  app.config import db_settings
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from app.db.base import Base
+import app.db.models  # чтобы прогрузились все модели
 
 from alembic import context
 
@@ -31,6 +32,15 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+def do_run_migrations(connection):
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
 
 
 def run_migrations_offline() -> None:
@@ -58,25 +68,16 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        do_run_migrations(connection)
 
-        with context.begin_transaction():
-            context.run_migrations()
+
 
 
 if context.is_offline_mode():

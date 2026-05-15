@@ -19,6 +19,7 @@ export default function Form({ handleSubmit, button_text, InputFields }: Props) 
         )
     }
 
+
     return (
         <form
             onSubmit={(e) => handleSubmit(e)}

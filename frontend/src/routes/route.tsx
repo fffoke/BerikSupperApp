@@ -4,44 +4,29 @@ import Home from "../pages/Todo/Home";
 import NotFoundPage from "../pages/NotFoundPage";
 import TodoList from "../pages/Todo/TodoList";
 import MainPage from "../pages/Main/MainPage";
-import type { linkList } from "../type/linkList"
+import { LinkLists } from "./linklist";
 import ContactPage from "../pages/Main/ContactPage";
+import Main from "../pages/Product_delivery/Main";
 
-const linkList: linkList[] = [
+
+
+
+export const router = createBrowserRouter([
     {
-        image: ['https://img.icons8.com/?size=100&id=ACLAf31fuu2O&format=png&color=000000'],
-        appName: 'todoApp',
-        links: [
+        path: '/',
+        element: <Loyalt linkList={LinkLists[0]} />,
+        children: [
             {
-                path: '/todo',
-                pathText: 'Home'
+                index: true, element: <MainPage />
             },
             {
-                path: '/todo/todos',
-                pathText: 'Todos'
+                path: 'contact', element: <ContactPage />
             }
         ]
     },
     {
-        image: ['/static/blacklogo.png', '/static/whitelogo.png'],
-        appName: '',
-        links: [
-            // {
-            //     path: '/todo',
-            //     pathText: 'Home'
-            // },
-            // {
-            //     path: '/todo/todos',
-            //     pathText: 'Todos'
-            // }
-        ]
-    },
-]
-
-export const router = createBrowserRouter([
-    {
         path: '/todo',
-        element: <Loyalt linkList={linkList[0]} />,
+        element: <Loyalt linkList={LinkLists[1]} />,
         children: [
             {
                 index: true, element: <Home />
@@ -54,16 +39,14 @@ export const router = createBrowserRouter([
             }
         ]
     },
+
     {
-        path: '/',
-        element: <Loyalt linkList={linkList[1]} />,
+        path: '/food_delivery',
+        element: <Loyalt linkList={LinkLists[2]} />,
         children: [
             {
-                index: true, element: <MainPage />
+                index: true, element: <Main />
             },
-            {
-                path: 'contact', element: <ContactPage />
-            }
         ]
-    }
+    },
 ])

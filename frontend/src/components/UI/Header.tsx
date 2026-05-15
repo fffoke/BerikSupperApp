@@ -3,6 +3,10 @@ import { useTheme } from "../../hooks/useTheme"
 import type { linkList } from "../../type/linkList"
 import ThemeToggle from "./TehemeChangeEl"
 import { FiLogOut } from 'react-icons/fi';
+import { useState } from "react";
+import { useAppSelector, useAppDispatch } from "../../RTK/store";
+import { clearAll } from "../../RTK/Auth/AuthSlice";
+import AuthModal from "./AuthModal";
 
 
 type Props = {
@@ -11,6 +15,15 @@ type Props = {
 
 export default function Header({ linkList }: Props) {
     const { theme, toggle } = useTheme()
+    const dispatch = useAppDispatch()
+    const auth = useAppSelector((state) => state.auth.auth)
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [mode, setMode] = useState<'login' | 'register'>('login')
+
+
+    const logOut = () => {
+        dispatch(clearAll())
+    }
     return (
         <header className="relative z-50">
             <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
@@ -28,18 +41,13 @@ export default function Header({ linkList }: Props) {
                     <div className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1 " id="mobile-menu-2">
                         <ul className="flex  flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
                             {linkList.links.map((el) => (
-                                <li>
+                                <li key={el.path}>
                                     <Link to={el.path} className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
                                         {el.pathText}
                                     </Link>
                                 </li>
                             ))}
 
-                            {/* <li>
-                                <Link to={'/contat'} className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-                                    Contact
-                                </Link>
-                            </li> */}
                             {/* <li>
                                 <Link to={'/todo/erorr'} className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
                                     404 Error
@@ -55,10 +63,55 @@ export default function Header({ linkList }: Props) {
                                     </div>
                                 </Link>
                             </li>
+                            <li>
+                                {auth.is_auth ? (
+                                    <div className="flex items-center gap-3">
+                                        <img
+                                            src={auth.me?.avatar_url || '/default-avatar.png'}
+                                            alt="avatar"
+                                            className="h-8 w-8 rounded-full object-cover"
+                                        />
+
+                                        <span className="text-sm font-medium">
+                                            {auth.me?.full_name}
+                                        </span>
+                                        <button onClick={logOut}>LogOut</button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setMode('login')
+                                                setIsOpen(true)
+                                            }}
+                                            className="px-3 py-2 text-sm rounded-md bg-gray-200 dark:bg-gray-700"
+                                        >
+                                            Вход
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                setMode('register')
+                                                setIsOpen(true)
+                                            }}
+                                            className="px-3 py-2 text-sm rounded-md bg-blue-600 text-white"
+                                        >
+                                            Регистрация
+                                        </button>
+                                    </div>
+                                )}
+                            </li>
+
                         </ul>
                     </div>
                 </div>
             </nav>
+            <AuthModal
+                isOpen={isOpen}
+                onClose={setIsOpen}
+                mode={mode}
+                setMode={setMode}
+            />
         </header>
     )
 }

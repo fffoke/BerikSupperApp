@@ -14,6 +14,12 @@ const projects = [
         description: "Реальный чат",
         path: '/'
     },
+    {
+        id: 3,
+        title: "Delivery",
+        description: "Доставка",
+        path: '/food_delivery/'
+    },
 ];
 
 export default function MainPage() {

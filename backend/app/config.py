@@ -24,7 +24,19 @@ class DBSettings(BaseSettings):
         return (
             f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
         )
+    
+
+class AppSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    jwt_secret_key: str
+    jwt_access_ttl_minutes: int = 15
+    jwt_refresh_ttl_days: int = 7
+
+    cors_origins: list[str]
 
 
 
 db_settings = DBSettings()
+
+app_settings = AppSettings()
+
