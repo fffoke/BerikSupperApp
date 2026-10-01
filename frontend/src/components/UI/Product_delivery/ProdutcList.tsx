@@ -1,6 +1,5 @@
 import ProductCard from './ProductCard';
 import { useGetAllParentProductQuery } from '../../../RTK/Food_delivery/ProductQuery';
-import { skipToken } from '@reduxjs/toolkit/query';
 
 
 type Props = {

@@ -1,33 +1,22 @@
-import { useState } from 'react';
 import type { Product } from "../../../type/Food_delivery/Product";
 import { BASE_URL } from '../../../RTK/Food_delivery/ProductQuery';
-import type { CartCreateResponse } from '../../../type/Food_delivery/Cart';
-import { useAddToCartMutation, useUpdateQuantityMutation } from '../../../RTK/Food_delivery/CartQuery';
-import { useAppSelector } from '../../../RTK/store';
+import { useAddToCartMutation } from '../../../RTK/Food_delivery/CartQuery';
 import { useActualQuantity } from '../../../hooks/Product_delivery/userActualQuantity';
 
 export default function ProductCard({ id, name, price, image_url, volume, discount }: Product) {
     // Локальное состояние для заглушки кнопок плюс/минус
-    const actual = useAppSelector((state) => state.cart.carts)
-
-    const [cart_id, setCartId] = useState<number | null>(null);
     // Рассчитываем старую цену, если есть скидка (например, если discount = 30)
     const hasDiscount = typeof discount === 'number' && discount > 0;
     const oldPrice = hasDiscount ? Math.round(price / (1 - discount / 100)) : null;
     const [addToCart] = useAddToCartMutation()
-    const [updateQuantity] = useUpdateQuantityMutation()
     const { quantityChange, count, setCount } = useActualQuantity(id)
 
     const add = async () => {
         setCount(1)
         try {
-            const response = await addToCart({
+            await addToCart({
                 product_id: id
             })
-            if (response.data?.id) {
-                setCartId(response.data?.id)
-            }
-
         } catch (e) {
             console.log(`Ошибка в ProductCart При добовлений в корзину ${e}`)
         }

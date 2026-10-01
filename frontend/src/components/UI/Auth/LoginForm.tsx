@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Camera, UserPlus } from "lucide-react";
+import React, { useState } from 'react';
+import { UserPlus } from "lucide-react";
 import { usePostLoginMutation } from '../../../RTK/Auth/AuthQuery';
 import type { InputFields } from '../../../type/inputfields';
 import type { UserLogin } from '../../../type/Auth';
@@ -23,6 +23,7 @@ export default function LoginForm({ onSwitchToLogin, onClose }: Props) {
         e.preventDefault()
         try {
             await login(logData).unwrap()
+            onClose(false)
         } catch (err) {
             console.log(err)
         }

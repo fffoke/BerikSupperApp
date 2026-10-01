@@ -53,7 +53,7 @@ export const store = configureStore({
         [CartApi.reducerPath]: CartApi.reducer
     },
 
-    middleware: () =>
+    middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
                 ignoredActions: [

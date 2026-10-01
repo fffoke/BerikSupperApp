@@ -1,12 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 import type { Auth, TokenResponse, MeResponse } from "../../type/Auth";
-import { AuthApi } from "./AuthQuery";
-
-
-
-
-
 const initialAuth: { auth: Auth } = {
     auth: {
         is_auth: false,
@@ -54,6 +48,5 @@ export const AuthSlice = createSlice({
 
 export const { SetTokens, setMe, clearAll } = AuthSlice.actions
 export default AuthSlice.reducer
-
 
 

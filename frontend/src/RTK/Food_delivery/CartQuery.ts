@@ -34,7 +34,7 @@ export const CartApi = createApi({
                 method: 'POST',
                 body
             }),
-            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled
 
@@ -52,7 +52,7 @@ export const CartApi = createApi({
                 method: 'POST',
                 body
             }),
-            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled
 

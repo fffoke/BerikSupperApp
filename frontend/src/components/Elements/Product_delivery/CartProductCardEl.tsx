@@ -1,10 +1,6 @@
-import { useState } from 'react';
 import type { CartCreateResponse } from '../../../type/Food_delivery/Cart';
 import { BASE_URL } from '../../../RTK/Food_delivery/ProductQuery';
-import { useUpdateQuantityMutation } from '../../../RTK/Food_delivery/CartQuery';
-import { useAppSelector } from '../../../RTK/store';
 import { useActualQuantity } from '../../../hooks/Product_delivery/userActualQuantity';
-import { tr } from 'framer-motion/client';
 
 interface CartProductCardProps {
     item: CartCreateResponse;
@@ -12,7 +8,7 @@ interface CartProductCardProps {
 
 export default function CartProductCardEl({ item }: CartProductCardProps) {
     // Временный стейт-заглушка для демонстрации +/- внутри корзины
-    const { quantityChange, count, setCount } = useActualQuantity(item.id)
+    const { quantityChange, count } = useActualQuantity(item.id)
     // Если количество упало до 0, в реальном Redux товар удалится. Пока просто скроем.
 
     // Предполагаем, что у item внутри могут быть поля product или напрямую price/name

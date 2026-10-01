@@ -1,10 +1,8 @@
-import React from 'react';
-import type { CartCreateResponse } from "../../../type/Food_delivery/Cart";
 import { useActualCart } from "../../../hooks/Product_delivery/useActualCart";
 import CartProductCardEl from '../../Elements/Product_delivery/CartProductCardEl';
 
 const CartSidebar = () => {
-    const { cartItems, isLoading, error } = useActualCart();
+    const { cartItems } = useActualCart();
 
     const items = cartItems || [];
     const isEmpty = items.length === 0;

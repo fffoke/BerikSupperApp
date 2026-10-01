@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Camera, UserPlus, X } from "lucide-react";
 import { useUploadAvatarMutation, usePostRegisterMutation } from '../../../RTK/Auth/AuthQuery';
 import type { UserReg } from '../../../type/Auth';
@@ -13,8 +13,6 @@ export default function RegisterForm({ onSwitchToLogin, onClose }: Props) {
     // Временное состояние только для превью аватарки (без логики отправки)
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
     const [regUser] = usePostRegisterMutation()
     const [addAvatar] = useUploadAvatarMutation()
 

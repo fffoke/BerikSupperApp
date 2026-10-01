@@ -29,7 +29,7 @@ export const AuthApi = createApi({
     endpoints: (builder) => ({
         getMe: builder.query<MeResponse, void>({
             query: () => 'api/v1/auth/me',
-            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled
 
@@ -46,7 +46,7 @@ export const AuthApi = createApi({
                 method: 'POST',
                 body,
             }),
-            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled
 
@@ -65,7 +65,7 @@ export const AuthApi = createApi({
                 method: 'POST',
                 body,
             }),
-            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled
 
