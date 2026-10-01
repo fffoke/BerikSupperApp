@@ -1,4 +1,5 @@
 from app.services.FoodDelivery.category_service import  generate_slug
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 from app.db.models.FoodDelivery.category_model import Category
@@ -7,30 +8,24 @@ from app.db.engine import create_engine, create_session_factory
 
 
 async def seed_categories(session: AsyncSession):
-    drinks = Category(
-        name="Напитки",
-        slug=generate_slug("Напитки"),
-        image_url="/static/categories/drinks.png"
-    )
+    categories_by_name = {
+        "Напитки": ("/static/products/cola_yandex.png", None),
+        "Молочные напитки": ("/static/products/milk_yandex.jpeg", "Напитки"),
+        "Снеки": ("/static/products/chips_yandex.png", None),
+    }
+    categories: dict[str, Category] = {}
 
-    milk = Category(
-        name="Молочные напитки",
-        slug=generate_slug("Молочные напитки"),
-        parent=drinks,
-        image_url="/static/categories/milk.png"
-    )
-
-    snacks = Category(
-        name="Снеки",
-        slug=generate_slug("Снеки"),
-        image_url="/static/categories/snacks.png"
-    )
-
-    session.add_all([
-        drinks,
-        milk,
-        snacks
-    ])
+    for name, (image_url, parent_name) in categories_by_name.items():
+        category = await session.scalar(select(Category).where(Category.name == name))
+        parent = categories.get(parent_name) if parent_name else None
+        if category is None:
+            category = Category(name=name, slug=generate_slug(name), image_url=image_url, parent=parent)
+            session.add(category)
+        else:
+            category.image_url = image_url
+            if parent is not None:
+                category.parent = parent
+        categories[name] = category
 
     await session.flush()
 
@@ -47,9 +42,9 @@ async def seed_categories(session: AsyncSession):
             proteins=0,
             fats=0,
             carbs=10.6,
-            image_url="/static/products/cola.png",
+            image_url="/static/products/cola_yandex.png",
             discount=10,
-            category_id=drinks.id
+            category_id=categories["Напитки"].id
         ),
 
         Product(
@@ -64,13 +59,39 @@ async def seed_categories(session: AsyncSession):
             proteins=3,
             fats=3.2,
             carbs=4.7,
-            image_url="/static/products/milk_prosto.png",
+            image_url="/static/products/milk_yandex.jpeg",
             discount=0,
-            category_id=milk.id
+            category_id=categories["Молочные напитки"].id
         )
     ]
 
-    session.add_all(products)
+    products.append(
+        Product(
+            name="Lay's Рифлёные Паприка 140 г",
+            price=790,
+            expiration="140 дней",
+            conditions="Хранить в сухом прохладном месте",
+            brand="Lay's",
+            manufacturer="PepsiCo",
+            volume="140 г",
+            calories=520,
+            proteins=6,
+            fats=32,
+            carbs=53,
+            image_url="/static/products/chips_yandex.png",
+            discount=0,
+            category_id=categories["Снеки"].id,
+        )
+    )
+
+    for product in products:
+        existing_product = await session.scalar(select(Product).where(Product.name == product.name))
+        if existing_product is None:
+            session.add(product)
+        else:
+            existing_product.image_url = product.image_url
+            if product.name.startswith("Coca Cola") or product.name.startswith("Молоко Простоквашино"):
+                existing_product.category_id = product.category_id
 
     await session.commit()
 

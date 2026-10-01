@@ -1,101 +1,78 @@
-import { useActualCart } from "../../../hooks/Product_delivery/useActualCart";
+import { useState } from 'react';
+import { useActualCart } from '../../../hooks/Product_delivery/useActualCart';
 import CartProductCardEl from '../../Elements/Product_delivery/CartProductCardEl';
 
 const CartSidebar = () => {
+    const [isOpen, setIsOpen] = useState(false);
     const { cartItems, error, isAuthenticated, isLoading } = useActualCart();
-
     const items = cartItems || [];
+    const itemCount = items.reduce((count, item) => count + (item.quantity || 1), 0);
+    const totalSum = items.reduce((sum, item) => sum + item.product.price * (item.quantity || 1), 0);
     const isEmpty = items.length === 0;
 
-    const totalSum = items.reduce((sum, item) => sum + (item.product.price * (item.quantity || 1)), 0);
-
-    return (
-        <aside className="w-[380px] h-screen sticky top-0 bg-white border-l border-gray-100 flex flex-col hidden xl:flex">
-
-            <div className="p-6 pb-4 border-b border-gray-50">
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className="text-2xl font-bold text-gray-900 leading-tight flex items-center gap-1.5">
-                            {/* Молния перед временем, как на твоем активном скрине */}
-                            {!isEmpty && <span className="text-purple-600">⚡</span>}
-                            25–45 мин, 0 ₽
-                        </span>
-                        <span className="text-xs text-gray-400 mt-1">
-                            Доставка бесплатно, а это всегда приятно
-                        </span>
-                    </div>
-
-                    <button className="text-gray-300 hover:text-gray-500 transition">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="12" y1="16" x2="12" y2="12" />
-                            <line x1="12" y1="8" x2="12.01" y2="8" />
-                        </svg>
-                    </button>
+    const contents = (
+        <>
+            <div className="flex items-center justify-between border-b border-gray-50 p-5">
+                <div>
+                    <div className="text-xl font-bold leading-tight text-gray-900">{!isEmpty && '⚡ '}25–45 мин, 0 ₽</div>
+                    <p className="mt-1 text-xs text-gray-400">Доставка бесплатно, а это всегда приятно</p>
                 </div>
+                <button type="button" aria-label="Закрыть корзину" onClick={() => setIsOpen(false)} className="rounded-full px-2 py-1 text-2xl text-gray-400 hover:bg-gray-100 lg:hidden">×</button>
             </div>
 
-            {/* Центральная часть: Динамический контент */}
             {!isAuthenticated ? (
-                <div className="flex-1 flex items-center justify-center p-8 text-center text-gray-500">
-                    Войдите в аккаунт, чтобы пользоваться корзиной.
-                </div>
+                <div className="flex flex-1 items-center justify-center p-8 text-center text-gray-500">Войдите в аккаунт, чтобы пользоваться корзиной.</div>
             ) : isLoading ? (
-                <div className="flex-1 flex items-center justify-center p-8 text-center text-gray-500">
-                    Загружаем корзину…
-                </div>
+                <div className="flex flex-1 items-center justify-center p-8 text-center text-gray-500">Загружаем корзину…</div>
             ) : error ? (
-                <div role="alert" className="flex-1 flex items-center justify-center p-8 text-center text-red-600">
-                    Не удалось загрузить корзину. Попробуйте обновить страницу.
-                </div>
+                <div role="alert" className="flex flex-1 items-center justify-center p-8 text-center text-red-600">Не удалось загрузить корзину. Попробуйте обновить страницу.</div>
             ) : isEmpty ? (
-                // СОСТОЯНИЕ: Корзина ПУСТАЯ (Центрируем контент)
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                    <div className="w-48 h-48 flex items-center justify-center mb-4">
-                        <img
-                            src="/static/CategoryUnavailable@2x.png"
-                            alt="Пустая корзина"
-                            className="w-full h-full object-contain opacity-80"
-                        />
-                    </div>
-                    <p className="text-[16px] font-medium text-gray-900 leading-snug">
-                        В корзине пока ничего нет.<br />
-                        Самое время наполнять её!
-                    </p>
+                <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+                    <img src="/static/CategoryUnavailable@2x.png" alt="Пустая корзина" className="mb-4 h-40 w-40 object-contain opacity-80" />
+                    <p className="text-base font-medium leading-snug text-gray-900">В корзине пока ничего нет.<br />Самое время наполнять её!</p>
                 </div>
             ) : (
-                // СОСТОЯНИЕ: В корзине ЕСТЬ ТОВАРЫ (Выстраиваем список сверху вниз с прокруткой)
-                <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-1">
-                    {items.map((item) => (
-                        <CartProductCardEl key={item.id} item={item} />
-                    ))}
+                <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-5 py-4">
+                    {items.map((item) => <CartProductCardEl key={item.id} item={item} />)}
                 </div>
             )}
 
-            {/* Нижняя часть: Динамическая кнопка действия */}
-            <div className="p-6 border-t border-gray-50">
-                <button
-                    disabled={isEmpty}
-                    className={`
-                        w-full py-4 rounded-2xl text-[16px] font-bold transition-all duration-200 flex items-center justify-center gap-1.5
-                        ${isEmpty
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-[#FCE000] text-gray-900 hover:bg-[#F5D500] active:scale-[0.98] shadow-sm'}
-                    `}
-                >
-                    {isEmpty ? (
-                        'Добавьте что-нибудь'
-                    ) : (
-                        <>
-                            <span>В корзину</span>
-                            <span className="opacity-30">·</span>
-                            <span>{totalSum} ₽</span>
-                        </>
-                    )}
+            <div className="border-t border-gray-50 p-5">
+                <button type="button" disabled={isEmpty || !isAuthenticated} className={`w-full rounded-2xl py-4 text-base font-bold transition ${isEmpty || !isAuthenticated ? 'cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-[#FCE000] text-gray-900 hover:bg-[#F5D500] active:scale-[0.98]'}`}>
+                    {isEmpty ? 'Добавьте что-нибудь' : <>К оформлению · {totalSum.toLocaleString('ru-RU')} ₽</>}
                 </button>
             </div>
+        </>
+    );
 
-        </aside>
+    return (
+        <>
+            <aside aria-label="Корзина" className="sticky top-0 hidden h-screen w-[340px] flex-shrink-0 flex-col border-l border-gray-100 bg-white xl:w-[380px] lg:flex">{contents}</aside>
+
+            <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                className="fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between rounded-2xl bg-[#FCE000] px-5 py-4 font-bold text-gray-900 shadow-lg lg:hidden"
+                aria-label={`Открыть корзину, товаров: ${itemCount}`}
+            >
+                <span>Корзина{itemCount > 0 ? ` · ${itemCount}` : ''}</span>
+                <span>{totalSum.toLocaleString('ru-RU')} ₽</span>
+            </button>
+
+            {isOpen && (
+                <div className="fixed inset-0 z-50 bg-black/40 lg:hidden" onClick={() => setIsOpen(false)}>
+                    <section
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Корзина"
+                        onClick={(event) => event.stopPropagation()}
+                        className="absolute inset-x-0 bottom-0 flex max-h-[90dvh] min-h-[60dvh] flex-col rounded-t-3xl bg-white shadow-2xl"
+                    >
+                        {contents}
+                    </section>
+                </div>
+            )}
+        </>
     );
 };
 

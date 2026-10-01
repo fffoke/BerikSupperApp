@@ -13,49 +13,42 @@ type Props = {
 const CategorySidebar = ({ data, isLoading, error }: Props) => {
     // const { data, isLoading, error } = useGetCatalogQuery();
 
-    if (isLoading) return <div className="w-72 p-4">Загрузка каталога...</div>;
-    if (error) return <div className="w-72 p-4 text-red-500">Ошибка загрузки</div>;
-    if (data == undefined) return <div className="w-72 p-4 text-red-500">Ошибка загрузки</div>;
-    return (
-        <aside className="w-[320px] h-screen sticky top-0 bg-white border-r border-gray-100 overflow-y-auto hidden md:block">
-            <div className="p-4">
-                <h1 className="text-2xl font-bold mb-6 px-2 text-gray-900">Каталог</h1>
+    if (isLoading) return <div className="w-full p-4 md:w-72">Загрузка каталога...</div>;
+    if (error) return <div className="w-full p-4 text-red-500 md:w-72">Ошибка загрузки</div>;
+    if (data == undefined) return <div className="w-full p-4 text-red-500 md:w-72">Ошибка загрузки</div>;
 
-                <nav className="flex flex-col gap-1">
-                    {data.categorys.map((category) => (
-
-                        <NavLink
-
-                            key={category.id}
-                            to={`/food_delivery/category/${category.slug}`}
-                            className={({ isActive }) => `
-                                flex items-center gap-3 p-3 rounded-2xl transition-all duration-200
-                                ${isActive
-                                    ? 'bg-gray-100 shadow-sm'
-                                    : 'hover:bg-gray-50 active:scale-95'}
-                            `}
-                        >
-                            {/* Контейнер для иконки как в Лавке */}
-                            <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded-full overflow-hidden flex items-center justify-center">
-                                {category.image_url ? (
-                                    <img
-                                        src={BASE_URL + category.image_url}
-                                        alt={category.name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-6 h-6 bg-gray-200 rounded-full" />
-                                )}
-                            </div>
-
-                            <span className="text-[15px] font-medium text-gray-800 leading-tight">
-                                {category.name}
-                            </span>
-                        </NavLink>
-                    ))}
-                </nav>
+    const links = data.categorys.map((category) => (
+        <NavLink
+            key={category.id}
+            to={`/food_delivery/category/${category.slug}`}
+            className={({ isActive }) => `
+                flex shrink-0 items-center gap-3 rounded-2xl p-3 transition-all duration-200
+                ${isActive ? 'bg-gray-100 shadow-sm' : 'hover:bg-gray-50 active:scale-95'}
+            `}
+        >
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-50">
+                {category.image_url ? (
+                    <img src={BASE_URL + category.image_url} alt={category.name} className="h-full w-full object-cover" />
+                ) : (
+                    <div className="h-6 w-6 rounded-full bg-gray-200" />
+                )}
             </div>
-        </aside >
+            <span className="text-[15px] font-medium leading-tight text-gray-800">{category.name}</span>
+        </NavLink>
+    ));
+
+    return (
+        <>
+            <aside className="sticky top-0 hidden h-screen w-[280px] flex-shrink-0 overflow-y-auto border-r border-gray-100 bg-white md:block xl:w-[320px]">
+                <div className="p-4">
+                    <h1 className="mb-6 px-2 text-2xl font-bold text-gray-900">Каталог</h1>
+                    <nav className="flex flex-col gap-1">{links}</nav>
+                </div>
+            </aside>
+            <nav aria-label="Категории каталога" className="flex w-full gap-2 overflow-x-auto border-b border-gray-100 bg-white px-3 py-2 md:hidden">
+                {links}
+            </nav>
+        </>
     );
 };
 

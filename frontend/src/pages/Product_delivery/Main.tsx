@@ -22,17 +22,14 @@ export default function Main() {
 
 
     return (
-        <div className="flex min-h-screen bg-white">
+        <div className="flex min-h-screen flex-col bg-white md:flex-row">
             <CategorySidebar data={data} isLoading={isLoading} error={error} />
 
-            <main className="flex-1 min-w-0 bg-white overflow-y-auto">
+            <main className="min-w-0 flex-1 overflow-y-auto bg-white pb-24 lg:pb-0">
                 {slug ? <ProductList slug={slug} /> : <CategoryGrid />}
             </main>
 
-            {/* Правая панель - фиксированная ширина */}
-            <div className="w-[380px] flex-shrink-0 sticky top-0 h-screen border-l border-gray-100 hidden xl:block">
-                <CartSidebar />
-            </div>
+            <CartSidebar />
         </div>
     );
 };
