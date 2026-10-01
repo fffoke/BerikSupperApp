@@ -10,7 +10,7 @@ class CategoryRepository(BaseRepository[Category]):
 
     async def get_catalog(self) -> Sequence[Category]:
         result = await self.session.scalars(
-            select(Category).where(Category.parent_id == None)
+            select(Category).where(Category.parent_id.is_(None))
         )
         return result.all()
 
@@ -36,15 +36,14 @@ class CategoryRepository(BaseRepository[Category]):
     ):
         category = await self.session.scalar(
             select(Category)
+            .options(
+                selectinload(Category.products),
+                selectinload(Category.children).selectinload(Category.products),
+            )
             .where(Category.slug == slug)
         )
+        if category is None:
+            return []
 
-        result = await self.session.scalars(
-            select(Category)
-            .options(
-                selectinload(Category.products)
-            )
-            .where(Category.parent_id == category.id)
-        )
-
-        return result.all()
+        categories = [category, *category.children]
+        return [item for item in categories if item.products]

@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../../../RTK/Food_delivery/ProductQuery';
 
 const CategoryGrid = () => {
-    const { data, isLoading } = useGetCatalogQuery();
+    const { data, isLoading, error } = useGetCatalogQuery();
     const navigate = useNavigate();
 
     if (isLoading) return <div className="p-6">Загрузка категорий...</div>;
+    if (error) return <div role="alert" className="p-6 text-red-600">Не удалось загрузить каталог.</div>;
+    if (!data?.categorys.length) return <div className="p-6 text-gray-500">Каталог пока пуст.</div>;
 
 
     return (
@@ -23,7 +25,7 @@ const CategoryGrid = () => {
                     >
                         {/* Изображение категории как фон */}
                         <img
-                            src={`${BASE_URL}${category.image_url}`}
+                            src={category.image_url ? `${BASE_URL}${category.image_url}` : '/static/CategoryUnavailable@2x.png'}
                             alt={category.name}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />

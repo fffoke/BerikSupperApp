@@ -14,25 +14,35 @@ class CartService():
 
 
     async def create(self, product_id, user_id):
-
-        kwargs: dict =  {
-            'product_id': product_id,
-            'user_id': user_id,
-            'quantity': 1
-        }
-
-        cart_item = await self.cart_repo.create(**kwargs)
         product = await self.product_repo.get_by_id(product_id)
+        if product is None:
+            return None
+
+        cart_item = await self.cart_repo.get_by_user_and_product(user_id, product_id)
+        if cart_item is None:
+            cart_item = await self.cart_repo.create(
+                product_id=product_id,
+                user_id=user_id,
+                quantity=1,
+            )
+            cart_item.product = product
+        else:
+            cart_item.quantity += 1
+            await self.cart_repo.session.flush()
 
         return CartCreateResponse(
-            product_id = kwargs['product_id'],
-            id = cart_item.id,
-            quantity = kwargs['quantity'],
+            product_id=product_id,
+            id=cart_item.id,
+            quantity=cart_item.quantity,
             product=ProductShortResponse.model_validate(product)
         )
     
-    async def change_quantity(self, cart_id: int, operand: bool):
-        result = await self.cart_repo.quantity_change(operand=operand, cart_id=cart_id)
+    async def change_quantity(self, cart_id: int, operand: bool, user_id: int):
+        result = await self.cart_repo.quantity_change(
+            operand=operand,
+            cart_id=cart_id,
+            user_id=user_id,
+        )
         return result
     
     

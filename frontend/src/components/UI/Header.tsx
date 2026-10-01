@@ -6,6 +6,7 @@ import { FiLogOut } from 'react-icons/fi';
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../RTK/store";
 import { clearAll } from "../../RTK/Auth/AuthSlice";
+import { CartApi } from "../../RTK/Food_delivery/CartQuery";
 import AuthModal from "./Auth/AuthModal";
 import BasicModel from "./BasicModel";
 import { BASE_URL } from "../../RTK/Food_delivery/ProductQuery";
@@ -21,6 +22,7 @@ export default function Header({ linkList }: Props) {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const logOut = () => {
         dispatch(clearAll())
+        dispatch(CartApi.util.resetApiState())
     }
     return (
         <header className="relative z-50">
@@ -65,7 +67,7 @@ export default function Header({ linkList }: Props) {
                                 {auth.is_auth ? (
                                     <div className="flex items-center gap-3">
                                         <img
-                                            src={BASE_URL + auth.me?.avatar_url || '/default-avatar.png'}
+                                            src={auth.me?.avatar_url ? BASE_URL + auth.me.avatar_url : '/static/appLogo.png'}
                                             alt="avatar"
                                             className="h-8 w-8 rounded-full object-cover"
                                         />

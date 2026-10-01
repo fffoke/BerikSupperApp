@@ -39,8 +39,9 @@ async def get_parent_category(
     svc = CategoryService(session)
 
     categorys = await svc.repo.get_by_parent(slug)
+    if categorys is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Category not found')
 
     return CategoryListResponse(
         categorys = [ CategoryResponse.model_validate(c) for c in categorys.children ]
     )
-

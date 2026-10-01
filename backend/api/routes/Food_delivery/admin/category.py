@@ -22,6 +22,6 @@ async def create_category(
         parent_id = body.parent_id  
     )
 
-    return CategoryResponse(**category)
+    return CategoryResponse.model_validate(category)
 
     

@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "./ProductQuery";
 import { type RootState } from '../store'
-import { addCart, updateQuantity } from "./CartSlice";
 
 import type {
     CartCreateResponse, AllCartResponse,
@@ -12,9 +11,10 @@ import type {
 
 export const CartApi = createApi({
     reducerPath: 'CartApi',
+    tagTypes: ['Cart'],
 
     baseQuery: fetchBaseQuery({
-        baseUrl: BASE_URL,
+        baseUrl: `${BASE_URL}/`,
         prepareHeaders: (headers, { getState }) => {
             const state = getState() as RootState
             const auth = state.auth.auth
@@ -30,20 +30,11 @@ export const CartApi = createApi({
     endpoints: (builder) => ({
         addToCart: builder.mutation<CartCreateResponse, CartCreateRequest>({
             query: (body) => ({
-                url: 'api/v1/cart',
-                method: 'POST',
-                body
+            url: 'api/v1/cart/',
+            method: 'POST',
+            body
             }),
-            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-                try {
-                    const { data } = await queryFulfilled
-
-                    dispatch(addCart(data))
-
-                } catch (e) {
-                    console.log(`Ошибка onQueryStarted в CartApi  ${e}`)
-                }
-            }
+            invalidatesTags: [{ type: 'Cart', id: 'LIST' }],
         }),
 
         updateQuantity: builder.mutation<QuantityChangeResponse, QuantityChangeRequest>({
@@ -52,24 +43,12 @@ export const CartApi = createApi({
                 method: 'POST',
                 body
             }),
-            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-                try {
-                    const { data } = await queryFulfilled
-
-                    dispatch(updateQuantity(data))
-                } catch (e) {
-                    console.log(`Ошибка onQueryStarted в CartApi ${e}`)
-                }
-
-            },
-
+            invalidatesTags: [{ type: 'Cart', id: 'LIST' }],
         }),
 
         getAllCart: builder.query<AllCartResponse, void>({
             query: () => 'api/v1/cart/get_all',
-            // async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-
-            // }
+            providesTags: [{ type: 'Cart', id: 'LIST' }],
         }),
 
     })

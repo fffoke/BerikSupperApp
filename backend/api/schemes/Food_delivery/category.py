@@ -15,6 +15,8 @@ class CategoryParentRequest(CategoryRequest):
 
 class CategoryResponse(CategoryParentRequest):
     model_config = ConfigDict(from_attributes=True)
+    image_url: str | None = None
+    parent_id: int | None = None
     slug: str
     id: int 
 

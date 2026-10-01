@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { CategoryProductsResponse, ParentCategoryResponse, ProductDetail } from "../../type/Food_delivery/Product";
+import type { CategoryProductsResponse, ParentCategoryResponse, ProductDetail, ProductListResponse } from "../../type/Food_delivery/Product";
 
 export const BASE_URL = ''
 
@@ -24,7 +24,7 @@ export const ProductApi = createApi({
             query: (id) => `api/v1/product/${id}`
         }),
 
-        getProductsBySlag: builder.query<ProductDetail[], string>({
+        getProductsBySlag: builder.query<ProductListResponse, string>({
             query: (slug) => `api/v1/product/slug/${slug}`
         }),
 

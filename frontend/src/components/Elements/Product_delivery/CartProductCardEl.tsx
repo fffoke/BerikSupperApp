@@ -8,7 +8,7 @@ interface CartProductCardProps {
 
 export default function CartProductCardEl({ item }: CartProductCardProps) {
     // Временный стейт-заглушка для демонстрации +/- внутри корзины
-    const { quantityChange, count } = useActualQuantity(item.id)
+    const { quantityChange, count } = useActualQuantity(item.product_id)
     // Если количество упало до 0, в реальном Redux товар удалится. Пока просто скроем.
 
     // Предполагаем, что у item внутри могут быть поля product или напрямую price/name
@@ -17,6 +17,7 @@ export default function CartProductCardEl({ item }: CartProductCardProps) {
     const name = item.product.name;
     const imgUrl = item.product.image_url;
     const volume = item.product.volume;
+    const discount = item.product.discount ?? 0;
 
 
     return (
@@ -25,7 +26,7 @@ export default function CartProductCardEl({ item }: CartProductCardProps) {
             <div className="flex items-center gap-3 flex-1 min-w-0表">
                 <div className="w-16 h-16 bg-gray-50 rounded-2xl flex-shrink-0 p-2 overflow-hidden flex items-center justify-center">
                     <img
-                        src={BASE_URL + imgUrl}
+                        src={imgUrl ? BASE_URL + imgUrl : '/static/CategoryUnavailable@2x.png'}
                         alt={name}
                         className="w-full h-full object-contain"
                     />
@@ -38,9 +39,9 @@ export default function CartProductCardEl({ item }: CartProductCardProps) {
                         <span className="text-[14px] font-bold text-gray-900">
                             {price} ₽
                         </span>
-                        {item.product.discount > 0 && (
+                        {discount > 0 && (
                             <span className="text-[12px] text-gray-400 line-through">
-                                {Math.round(price / (1 - item.product.discount / 100))} ₽
+                                {Math.round(price / (1 - discount / 100))} ₽
                             </span>
                         )}
                         <span className="text-[12px] text-gray-400">

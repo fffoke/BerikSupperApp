@@ -11,7 +11,6 @@ export type AppDispatch = typeof store.dispatch;
 import todoSlice from "./Todo/TodoSlice";
 import storage from "redux-persist/es/storage";
 import AuthSlice from "./Auth/AuthSlice";
-import CartSlice from "./Food_delivery/CartSlice";
 import { AuthApi } from "./Auth/AuthQuery";
 import { ProductApi } from "./Food_delivery/ProductQuery";
 import { CartApi } from "./Food_delivery/CartQuery";
@@ -31,22 +30,15 @@ const persistConf = {
         storage,
         whitelist: ["auth"]
     },
-    cart: {
-        key: 'cart',
-        storage,
-        whitelist: ["cart"]
-    }
 }
 
 const TodoPersistreducer = persistReducer(persistConf.todo, todoSlice)
 const AuthPersistreducer = persistReducer(persistConf.auth, AuthSlice)
-const CartPersistreducer = persistReducer(persistConf.cart, CartSlice)
 
 export const store = configureStore({
     reducer: {
         todos: TodoPersistreducer,
         auth: AuthPersistreducer,
-        cart: CartPersistreducer,
 
         [AuthApi.reducerPath]: AuthApi.reducer,
         [ProductApi.reducerPath]: ProductApi.reducer,

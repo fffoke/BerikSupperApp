@@ -14,12 +14,12 @@ class ProductCreateRequest(BaseModel):
     brand: str | None = None
     manufacturer: str | None = None
 
-    calories: float | None = None
-    proteins: float | None = None
-    fats: float | None = None
-    carbs: float | None = None
+    calories: float
+    proteins: float
+    fats: float
+    carbs: float
 
-    img_url: str | None = None
+    image_url: str | None = None
     volume: str
     category_id: int
 
@@ -46,8 +46,7 @@ class ProductShortResponse(BaseModel):
 
 
 class ProductListResponse(BaseModel):
-    
-    produtcs: list[ProductResponse]
+    products: list[ProductShortResponse]
 
 
 class CategoryProductsResponse(BaseModel):

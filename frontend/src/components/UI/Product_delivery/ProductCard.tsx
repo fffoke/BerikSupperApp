@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Product } from "../../../type/Food_delivery/Product";
 import { BASE_URL } from '../../../RTK/Food_delivery/ProductQuery';
 import { useAddToCartMutation } from '../../../RTK/Food_delivery/CartQuery';
@@ -8,37 +9,31 @@ export default function ProductCard({ id, name, price, image_url, volume, discou
     // Рассчитываем старую цену, если есть скидка (например, если discount = 30)
     const hasDiscount = typeof discount === 'number' && discount > 0;
     const oldPrice = hasDiscount ? Math.round(price / (1 - discount / 100)) : null;
-    const [addToCart] = useAddToCartMutation()
-    const { quantityChange, count, setCount } = useActualQuantity(id)
+    const [addToCart, { isLoading: isAdding }] = useAddToCartMutation()
+    const { quantityChange, count, isAuthenticated } = useActualQuantity(id)
+    const [addError, setAddError] = useState<string | null>(null)
 
     const add = async () => {
-        setCount(1)
-        try {
-            await addToCart({
-                product_id: id
-            })
-        } catch (e) {
-            console.log(`Ошибка в ProductCart При добовлений в корзину ${e}`)
+        setAddError(null)
+        if (!isAuthenticated) {
+            setAddError('Войдите в аккаунт, чтобы добавить товар в корзину')
+            return
         }
 
+        try {
+            await addToCart({ product_id: id }).unwrap()
+        } catch {
+            setAddError('Не удалось добавить товар. Попробуйте ещё раз')
+        }
     }
 
-    // const quantityChange = (operand: boolean) => {
-
-    //     if (cart_id !== null) {
-    //         updateQuantity({
-    //             id: cart_id,
-    //             operand: operand
-    //         })
-    //     }
-    // }
     return (
         <div className="flex flex-col bg-white rounded-3xl p-2 w-full max-w-[210px] transition-all duration-200 select-none">
 
             {/* 1. КАРТИНКА, СКИДКА И УПРАВЛЕНИЕ КОЛИЧЕСТВОМ */}
             <div className="relative aspect-square w-full bg-[#F5F5F7] rounded-[24px] overflow-hidden flex items-center justify-center mb-3">
                 <img
-                    src={BASE_URL + image_url}
+                    src={image_url ? BASE_URL + image_url : '/static/CategoryUnavailable@2x.png'}
                     alt={name}
                     className="w-full h-full object-contain p-4"
                 />
@@ -56,6 +51,8 @@ export default function ProductCard({ id, name, price, image_url, volume, discou
                         // Если товар еще не добавлен
                         <button
                             onClick={() => add()}
+                            disabled={isAdding}
+                            aria-label={`Добавить ${name} в корзину`}
                             className="w-10 h-10 bg-white hover:bg-gray-50 active:scale-95 text-gray-900 rounded-full flex items-center justify-center shadow-md transition-all duration-150 text-2xl font-normal"
                         >
                             +
@@ -104,6 +101,11 @@ export default function ProductCard({ id, name, price, image_url, volume, discou
                     {volume || '1 шт'}
                 </span>
             </div>
+            {addError && (
+                <p role="alert" className="px-1 mt-2 text-xs text-red-600">
+                    {addError}
+                </p>
+            )}
         </div >
     );
 }

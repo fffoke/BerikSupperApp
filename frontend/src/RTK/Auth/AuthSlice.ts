@@ -26,7 +26,6 @@ export const AuthSlice = createSlice({
             state.auth.is_auth = true
         },
         setMe(state, action: PayloadAction<MeResponse>) {
-            console.log(`Данные пришли в SetMe${action.payload}`)
             state.auth.me.full_name = action.payload.full_name
             state.auth.me.role = action.payload.role
             state.auth.me.avatar_url = action.payload.avatar_url
@@ -48,5 +47,4 @@ export const AuthSlice = createSlice({
 
 export const { SetTokens, setMe, clearAll } = AuthSlice.actions
 export default AuthSlice.reducer
-
 

@@ -8,7 +8,7 @@ from api.dependencies import DbSession
 app = APIRouter()
 
 
-@app.get('/{id}', response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
+@app.get('/{id}', response_model=ProductResponse, status_code=status.HTTP_200_OK)
 async def get_product_by_id(
     session: DbSession,
     id: int
@@ -19,7 +19,7 @@ async def get_product_by_id(
 
     if not product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Product not found')
-    return ProductResponse(**product)
+    return ProductResponse.model_validate(product)
 
 @app.get('/slug/{slug}', response_model=ProductListResponse, status_code=status.HTTP_200_OK)
 async def get_products_by_slag(
@@ -29,12 +29,11 @@ async def get_products_by_slag(
     svc = ProductService(session)
 
     products = await svc.get_product_by_slug(slug)
-    
-    if not products:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Product not found')
+    if products is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Category not found')
 
     return ProductListResponse(
-           produtcs = [ProductResponse.model_validate(p) for p in products]
+        products=products
         )
 
 @app.get(

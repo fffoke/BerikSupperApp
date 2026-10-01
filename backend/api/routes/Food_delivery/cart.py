@@ -20,6 +20,8 @@ async def add_cart(
 ):
     svc = CartService(session)
     cart = await svc.create(user_id=user.id, product_id=body.product_id)
+    if cart is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Product not found')
     return cart
 
 
@@ -35,9 +37,11 @@ async def change_quantity(
     body: QuantityChangeRequest,
 ):
     svc = CartService(session)
-    res = await svc.change_quantity(body.id, body.operand)
+    res = await svc.change_quantity(body.id, body.operand, user.id)
+    if res is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Cart item not found')
     if isinstance(res, dict):
-        return QuantityChangeResponse(message=res['message'])
+        return QuantityChangeResponse(**res)
     return QuantityChangeResponse(id=res.id, quantity=res.quantity)
 
 

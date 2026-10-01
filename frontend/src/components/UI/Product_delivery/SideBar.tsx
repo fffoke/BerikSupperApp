@@ -16,10 +16,6 @@ const CategorySidebar = ({ data, isLoading, error }: Props) => {
     if (isLoading) return <div className="w-72 p-4">Загрузка каталога...</div>;
     if (error) return <div className="w-72 p-4 text-red-500">Ошибка загрузки</div>;
     if (data == undefined) return <div className="w-72 p-4 text-red-500">Ошибка загрузки</div>;
-    data.categorys.map((category) => {
-        console.log(`Категория: ${category.name} ${category.id} ${category.parent_id}`)
-    })
-
     return (
         <aside className="w-[320px] h-screen sticky top-0 bg-white border-r border-gray-100 overflow-y-auto hidden md:block">
             <div className="p-4">

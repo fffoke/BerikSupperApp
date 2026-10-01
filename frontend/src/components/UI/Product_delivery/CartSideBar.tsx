@@ -2,7 +2,7 @@ import { useActualCart } from "../../../hooks/Product_delivery/useActualCart";
 import CartProductCardEl from '../../Elements/Product_delivery/CartProductCardEl';
 
 const CartSidebar = () => {
-    const { cartItems } = useActualCart();
+    const { cartItems, error, isAuthenticated, isLoading } = useActualCart();
 
     const items = cartItems || [];
     const isEmpty = items.length === 0;
@@ -36,7 +36,19 @@ const CartSidebar = () => {
             </div>
 
             {/* Центральная часть: Динамический контент */}
-            {isEmpty ? (
+            {!isAuthenticated ? (
+                <div className="flex-1 flex items-center justify-center p-8 text-center text-gray-500">
+                    Войдите в аккаунт, чтобы пользоваться корзиной.
+                </div>
+            ) : isLoading ? (
+                <div className="flex-1 flex items-center justify-center p-8 text-center text-gray-500">
+                    Загружаем корзину…
+                </div>
+            ) : error ? (
+                <div role="alert" className="flex-1 flex items-center justify-center p-8 text-center text-red-600">
+                    Не удалось загрузить корзину. Попробуйте обновить страницу.
+                </div>
+            ) : isEmpty ? (
                 // СОСТОЯНИЕ: Корзина ПУСТАЯ (Центрируем контент)
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
                     <div className="w-48 h-48 flex items-center justify-center mb-4">
@@ -54,8 +66,8 @@ const CartSidebar = () => {
             ) : (
                 // СОСТОЯНИЕ: В корзине ЕСТЬ ТОВАРЫ (Выстраиваем список сверху вниз с прокруткой)
                 <div className="flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-1">
-                    {items.map((item, index) => (
-                        <CartProductCardEl key={item.id || index} item={item} />
+                    {items.map((item) => (
+                        <CartProductCardEl key={item.id} item={item} />
                     ))}
                 </div>
             )}
