@@ -19,8 +19,6 @@ export default function Header({ linkList }: Props) {
     const dispatch = useAppDispatch()
     const auth = useAppSelector((state) => state.auth.auth)
     const [isOpen, setIsOpen] = useState<boolean>(false)
-    console.log(`Фото url: ${BASE_URL + auth.me?.avatar_url}`)
-
     const logOut = () => {
         dispatch(clearAll())
     }
