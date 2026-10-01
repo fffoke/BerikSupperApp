@@ -1,15 +1,19 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { type RootState } from '../store'
 
-import type { UserReg, TokenResponse, MeResponse, UserLogin } from '../../type/Auth'
-import { SetTokens } from './AuthSlice'
+import type {
+    UserReg, TokenResponse,
+    MeResponse, UserLogin,
+    AvatarUploadResponse
+} from '../../type/Auth'
+import { setMe, SetTokens } from './AuthSlice'
 
 
 export const AuthApi = createApi({
     reducerPath: 'AuthApi',
 
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://127.0.0.1:8000/',
+        baseUrl: '/',
         prepareHeaders: (headers, { getState }) => {
             const state = getState() as RootState
             const auth = state.auth.auth
@@ -24,7 +28,17 @@ export const AuthApi = createApi({
 
     endpoints: (builder) => ({
         getMe: builder.query<MeResponse, void>({
-            query: () => 'api/v1/auth/me'
+            query: () => 'api/v1/auth/me',
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled
+
+                    dispatch(setMe(data))
+
+                } catch (e) {
+                    console.log(e)
+                }
+            }
         }),
         postRegister: builder.mutation<TokenResponse, UserReg>({
             query: (body) => ({
@@ -62,9 +76,27 @@ export const AuthApi = createApi({
                 }
             }
 
+        }),
+
+        uploadAvatar: builder.mutation<AvatarUploadResponse, File>({
+            query: (file) => {
+
+                const form = new FormData()
+                form.append('file', file)
+
+
+                return ({
+                    url: 'api/v1/upload/avatar',
+                    method: 'POST',
+                    body: form
+                })
+            }
         })
     })
 })
 
 
-export const { useGetMeQuery, usePostRegisterMutation, usePostLoginMutation } = AuthApi 
+export const {
+    useGetMeQuery, usePostRegisterMutation,
+    usePostLoginMutation, useUploadAvatarMutation
+} = AuthApi 

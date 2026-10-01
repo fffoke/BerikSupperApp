@@ -18,7 +18,7 @@ async def create_category(
 
     category = await svc.create(
         name = body.name,
-        image_url = body.img_url,
+        image_url = body.image_url,
         parent_id = body.parent_id  
     )
 

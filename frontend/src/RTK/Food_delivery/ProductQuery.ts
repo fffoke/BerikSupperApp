@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { ParentCategoryResponse, ProductDetail } from "../../type/Food_delivery/Product";
+import type { CategoryProductsResponse, ParentCategoryResponse, ProductDetail } from "../../type/Food_delivery/Product";
 
-export const BASE_URL = 'http://127.0.0.1:8000'
+export const BASE_URL = ''
 
 export const ProductApi = createApi({
     reducerPath: 'ProductApi',
@@ -16,8 +16,8 @@ export const ProductApi = createApi({
             query: () => 'api/v1/category/get_catalog'
         }),
 
-        getParentCategory: builder.query<ParentCategoryResponse, number>({
-            query: (id) => `api/v1/category/get_category_parent/${id}`
+        getParentCategory: builder.query<ParentCategoryResponse, string>({
+            query: (slug) => `api/v1/category/get_category_parent/${slug}`
         }),
 
         getProductById: builder.query<ProductDetail, number>({
@@ -25,11 +25,11 @@ export const ProductApi = createApi({
         }),
 
         getProductsBySlag: builder.query<ProductDetail[], string>({
-            query: (slug) => `/slug/${slug}`
+            query: (slug) => `api/v1/product/slug/${slug}`
         }),
 
-        getAllParentProduct: builder.query<ProductDetail[], number>({
-            query: (parent_id) => `/parent/${parent_id}`
+        getAllParentProduct: builder.query<CategoryProductsResponse[], string>({
+            query: (slug) => `api/v1/product/parent/${slug}`
         })
     })
 

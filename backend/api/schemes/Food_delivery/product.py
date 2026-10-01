@@ -23,6 +23,8 @@ class ProductCreateRequest(BaseModel):
     volume: str
     category_id: int
 
+    discount: int | None = None
+
 class ProductResponse(ProductCreateRequest):
     model_config = ConfigDict(from_attributes=True)
 
@@ -39,6 +41,9 @@ class ProductShortResponse(BaseModel):
     name: str
     image_url: str | None
     price: float
+    discount: int | None = None
+    volume: str
+
 
 class ProductListResponse(BaseModel):
     

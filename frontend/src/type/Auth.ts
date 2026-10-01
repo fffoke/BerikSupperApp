@@ -38,3 +38,8 @@ export interface UserLogin {
     full_name: string
     password: string
 }
+
+
+export interface AvatarUploadResponse {
+    image_url: string
+}

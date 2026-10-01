@@ -19,7 +19,7 @@ const CategoryGrid = () => {
                 {data?.categorys.map((category) => (
                     <div
                         key={category.id}
-                        onClick={() => navigate(`/category/${category.slug}`)}
+                        onClick={() => navigate(`/food_delivery/category/${category.slug}`)}
                         className="relative group cursor-pointer overflow-hidden rounded-[32px] h-[200px] transition-transform active:scale-95"
                     >
                         {/* Изображение категории как фон */}

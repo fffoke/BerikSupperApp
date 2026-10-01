@@ -31,7 +31,7 @@ class BaseRepository(Generic[T]):
         self._validate_fields(kwargs)
         obj = self.model(**kwargs)
         self.session.add(obj)
-        self.session.flush()
+        await self.session.flush()
         return obj
     
     async def get_by_ids(self, ids: Sequence[int]) -> Sequence[T]:

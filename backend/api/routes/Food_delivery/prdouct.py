@@ -38,16 +38,16 @@ async def get_products_by_slag(
         )
 
 @app.get(
-    '/parent/{parent_id}',
+    '/parent/{slug}',
     response_model=list[CategoryProductsResponse],
     status_code=status.HTTP_200_OK
 )
 async def get_all_parent_product(
     session: DbSession,
-    parent_id: int
+    slug: str
 ):
     svc = ProductService(session)
 
     return await svc.get_products_grouped_by_parent(
-        parent_id
+        slug
     )

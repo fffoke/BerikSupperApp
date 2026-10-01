@@ -20,23 +20,31 @@ class CategoryRepository(BaseRepository[Category]):
         )
         return result.scalar_one_or_none()
 
-    async def get_by_parent(self, parent_id: int) -> Sequence[Category]:
-        result = await self.session.scalars(
-            select(Category).where(Category.parent_id == parent_id)
+    async def get_by_parent(self, slug: str) -> Category | None:
+        result = await self.session.scalar(
+            select(Category)
+            .options(selectinload(Category.children))
+            .where(Category.slug == slug)
         )
-        return result.all()
+
+        return result
     
 
     async def get_categories_with_products(
         self,
-        parent_id: int
+        slug: int
     ):
+        category = await self.session.scalar(
+            select(Category)
+            .where(Category.slug == slug)
+        )
+
         result = await self.session.scalars(
             select(Category)
             .options(
                 selectinload(Category.products)
             )
-            .where(Category.parent_id == parent_id)
+            .where(Category.parent_id == category.id)
         )
 
         return result.all()

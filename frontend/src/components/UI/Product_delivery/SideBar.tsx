@@ -1,13 +1,24 @@
-import React from 'react';
-import { useGetCatalogQuery } from '../../../RTK/Food_delivery/ProductQuery'; // путь к твоему api
 import { NavLink } from 'react-router-dom';
+import { BASE_URL } from '../../../RTK/Food_delivery/ProductQuery';
+import type { ParentCategoryResponse } from '../../../type/Food_delivery/Product';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import type { SerializedError } from '@reduxjs/toolkit';
 
-const CategorySidebar = () => {
-    const { data, isLoading, error } = useGetCatalogQuery();
+type Props = {
+    data: ParentCategoryResponse | undefined,
+    isLoading: boolean,
+    error: FetchBaseQueryError | SerializedError | undefined,
+}
+
+const CategorySidebar = ({ data, isLoading, error }: Props) => {
+    // const { data, isLoading, error } = useGetCatalogQuery();
 
     if (isLoading) return <div className="w-72 p-4">Загрузка каталога...</div>;
     if (error) return <div className="w-72 p-4 text-red-500">Ошибка загрузки</div>;
     if (data == undefined) return <div className="w-72 p-4 text-red-500">Ошибка загрузки</div>;
+    data.categorys.map((category) => {
+        console.log(`Категория: ${category.name} ${category.id} ${category.parent_id}`)
+    })
 
     return (
         <aside className="w-[320px] h-screen sticky top-0 bg-white border-r border-gray-100 overflow-y-auto hidden md:block">
@@ -16,9 +27,11 @@ const CategorySidebar = () => {
 
                 <nav className="flex flex-col gap-1">
                     {data.categorys.map((category) => (
+
                         <NavLink
+
                             key={category.id}
-                            to={`/category/${category.slug}`}
+                            to={`/food_delivery/category/${category.slug}`}
                             className={({ isActive }) => `
                                 flex items-center gap-3 p-3 rounded-2xl transition-all duration-200
                                 ${isActive
@@ -30,7 +43,7 @@ const CategorySidebar = () => {
                             <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded-full overflow-hidden flex items-center justify-center">
                                 {category.image_url ? (
                                     <img
-                                        src={category.image_url}
+                                        src={BASE_URL + category.image_url}
                                         alt={category.name}
                                         className="w-full h-full object-cover"
                                     />
@@ -46,7 +59,7 @@ const CategorySidebar = () => {
                     ))}
                 </nav>
             </div>
-        </aside>
+        </aside >
     );
 };
 

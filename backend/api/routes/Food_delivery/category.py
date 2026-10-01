@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.services.FoodDelivery.category_service import CategoryService
 from api.schemes.Food_delivery.category import CategoryListResponse, CategoryResponse
-from api.dependencies import DbSession, CurrentAdmin
+from api.dependencies import DbSession
 
 app = APIRouter()
 
@@ -27,20 +27,20 @@ async def get_parent_category(
 
 
 @app.get(
-    '/get_category_parent/{id}', 
+    '/get_category_parent/{slug}', 
     response_model=CategoryListResponse, 
     status_code=status.HTTP_200_OK,
     summary='Возврощаем все подкатегорий от родителя'
 )
 async def get_parent_category(
     session: DbSession,
-    id: int
+    slug: str
 ):
     svc = CategoryService(session)
 
-    categorys = await svc.repo.get_by_parent(id)
+    categorys = await svc.repo.get_by_parent(slug)
 
     return CategoryListResponse(
-        categorys = [ CategoryResponse.model_validate(c) for c in categorys ]
+        categorys = [ CategoryResponse.model_validate(c) for c in categorys.children ]
     )
 

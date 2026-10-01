@@ -6,8 +6,9 @@ import { FiLogOut } from 'react-icons/fi';
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../RTK/store";
 import { clearAll } from "../../RTK/Auth/AuthSlice";
-import AuthModal from "./AuthModal";
-
+import AuthModal from "./Auth/AuthModal";
+import BasicModel from "./BasicModel";
+import { BASE_URL } from "../../RTK/Food_delivery/ProductQuery";
 
 type Props = {
     linkList: linkList
@@ -18,8 +19,7 @@ export default function Header({ linkList }: Props) {
     const dispatch = useAppDispatch()
     const auth = useAppSelector((state) => state.auth.auth)
     const [isOpen, setIsOpen] = useState<boolean>(false)
-    const [mode, setMode] = useState<'login' | 'register'>('login')
-
+    console.log(`Фото url: ${BASE_URL + auth.me?.avatar_url}`)
 
     const logOut = () => {
         dispatch(clearAll())
@@ -67,7 +67,7 @@ export default function Header({ linkList }: Props) {
                                 {auth.is_auth ? (
                                     <div className="flex items-center gap-3">
                                         <img
-                                            src={auth.me?.avatar_url || '/default-avatar.png'}
+                                            src={BASE_URL + auth.me?.avatar_url || '/default-avatar.png'}
                                             alt="avatar"
                                             className="h-8 w-8 rounded-full object-cover"
                                         />
@@ -81,22 +81,12 @@ export default function Header({ linkList }: Props) {
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => {
-                                                setMode('login')
+
                                                 setIsOpen(true)
                                             }}
                                             className="px-3 py-2 text-sm rounded-md bg-gray-200 dark:bg-gray-700"
                                         >
                                             Вход
-                                        </button>
-
-                                        <button
-                                            onClick={() => {
-                                                setMode('register')
-                                                setIsOpen(true)
-                                            }}
-                                            className="px-3 py-2 text-sm rounded-md bg-blue-600 text-white"
-                                        >
-                                            Регистрация
                                         </button>
                                     </div>
                                 )}
@@ -106,11 +96,10 @@ export default function Header({ linkList }: Props) {
                     </div>
                 </div>
             </nav>
-            <AuthModal
+            <BasicModel
                 isOpen={isOpen}
                 onClose={setIsOpen}
-                mode={mode}
-                setMode={setMode}
+                children={<AuthModal onClose={setIsOpen} />}
             />
         </header>
     )

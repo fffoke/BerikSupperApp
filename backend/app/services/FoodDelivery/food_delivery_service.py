@@ -33,9 +33,9 @@ class ProductService():
             for p in products
         ]
     
-    async def get_products_grouped_by_parent(self,parent_id: int):
+    async def get_products_grouped_by_parent(self, slug: str):
         categories = await self.category_repo.get_categories_with_products(
-            parent_id
+            slug
         )
         return [
                     CategoryProductsResponse(

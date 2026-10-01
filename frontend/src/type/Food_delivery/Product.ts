@@ -2,7 +2,7 @@
 export interface CategoryResponse {
     image_url: string,
     name: string,
-    parent_id: number | null
+    parent_id: number,
     slug: string,
     id: number,
 }
@@ -25,7 +25,7 @@ export interface ProductDetail {
     proteins: number,
     fats: number,
     carbs: number,
-    img_url: string,
+    image_url: string,
     category_id: number,
     volume: string
 }
@@ -34,6 +34,14 @@ export interface Product {
     id: number,
     name: string,
     price: number,
-    img_url: string,
+    image_url: string,
     volume: string
+    discount: number
+}
+
+
+export interface CategoryProductsResponse {
+    category_name: string,
+
+    products: Product[]
 }

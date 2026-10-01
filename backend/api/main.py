@@ -6,10 +6,12 @@ from fastapi.staticfiles import StaticFiles
 
 from api.routes import (
     auth_route,
+    static_upload
 )
 from api.routes.Food_delivery import (
     category,
-    prdouct
+    prdouct,
+    cart
 )
 
 import uvicorn
@@ -21,6 +23,8 @@ app = FastAPI(
 app.include_router(auth_route.router, prefix='/api/v1/auth', tags=['Auth'])
 app.include_router(prdouct.app, prefix='/api/v1/product', tags=['Product'])
 app.include_router(category.app, prefix='/api/v1/category', tags=['Category'])
+app.include_router(cart.app, prefix='/api/v1/cart', tags=['Cart'])
+app.include_router(static_upload.router, prefix='/api/v1/upload', tags=['Upload'])
 
 app.add_middleware(
     CORSMiddleware,

@@ -103,3 +103,37 @@ Backend - FastAPI, Pydantic, SQLAlcehmy
 создание большого веб-приложжения с мини аппи (приложениями)
 для своего резюме
 
+```
+{
+   "success": true,
+   "errorCode": 0,
+   "message": null,
+   "result": [
+      {
+         "id": "a4c10b19-e15b-478d-a03a-54bf2caa2a1c",
+         "resources": [
+            {
+               "resourceId": "25255",
+               "specialityId": "23"
+            }
+         ],
+         "serviceIds": [
+            "11",
+            "12"
+         ],
+         "visitTime": "2023-09-05T01:26:08+03:00",
+         "duration": 10,
+         "status": "available",
+         "limit": 1,
+         "allowedClientIds": ["dc9a0e94-4e39-4721-aa20-c39a742ca435"],
+         "createdAt": "2023-09-05T01:26:08+03:00",
+         "updatedAt": "2023-09-05T01:26:08+03:00",
+         "appointment": {
+            "id": "appointment123123",
+            "patientIdType": "MPI",
+            "patientId": "8569",
+            "patientFullName": "Голиков Тихон Антонович",
+         }
+      },
+      
+   ]
