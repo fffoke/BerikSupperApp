@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useActualCart } from '../../../hooks/Product_delivery/useActualCart';
 import CartProductCardEl from '../../Elements/Product_delivery/CartProductCardEl';
+import { Link } from 'react-router-dom';
 
 const CartSidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -38,9 +39,13 @@ const CartSidebar = () => {
             )}
 
             <div className="border-t border-gray-50 p-5">
-                <button type="button" disabled={isEmpty || !isAuthenticated} className={`w-full rounded-2xl py-4 text-base font-bold transition ${isEmpty || !isAuthenticated ? 'cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-[#FCE000] text-gray-900 hover:bg-[#F5D500] active:scale-[0.98]'}`}>
-                    {isEmpty ? 'Добавьте что-нибудь' : <>К оформлению · {totalSum.toLocaleString('ru-RU')} ₽</>}
-                </button>
+                {isEmpty || !isAuthenticated ? (
+                    <button type="button" disabled className="w-full cursor-not-allowed rounded-2xl bg-gray-100 py-4 text-base font-bold text-gray-400">Добавьте что-нибудь</button>
+                ) : (
+                    <Link to="/food_delivery/cart" className="block w-full rounded-2xl bg-[#FCE000] py-4 text-center text-base font-bold text-gray-900 transition hover:bg-[#F5D500] active:scale-[0.98]">
+                        Перейти в корзину · {totalSum.toLocaleString('ru-RU')} ₽
+                    </Link>
+                )}
             </div>
         </>
     );

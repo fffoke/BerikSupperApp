@@ -60,3 +60,12 @@ async def get_all(
     res = await svc.get_all_cart(user.id)
 
     return res
+
+
+@app.delete('/clear', status_code=status.HTTP_204_NO_CONTENT)
+async def clear_cart(
+    session: DbSession,
+    user: CurrentUser,
+):
+    svc = CartService(session)
+    await svc.cart_repo.clear_by_user(user.id)

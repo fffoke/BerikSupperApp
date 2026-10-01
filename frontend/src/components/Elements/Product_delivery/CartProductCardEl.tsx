@@ -23,7 +23,7 @@ export default function CartProductCardEl({ item }: CartProductCardProps) {
     return (
         <div className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 select-none">
             {/* Левая часть: Картинка и Текст */}
-            <div className="flex items-center gap-3 flex-1 min-w-0表">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div className="w-16 h-16 bg-gray-50 rounded-2xl flex-shrink-0 p-2 overflow-hidden flex items-center justify-center">
                     <img
                         src={imgUrl ? BASE_URL + imgUrl : '/static/CategoryUnavailable@2x.png'}

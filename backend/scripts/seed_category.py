@@ -11,6 +11,7 @@ async def seed_categories(session: AsyncSession):
     categories_by_name = {
         "Напитки": ("/static/products/cola_yandex.png", None),
         "Молочные напитки": ("/static/products/milk_yandex.jpeg", "Напитки"),
+        "Молоко и сливки": ("/static/products/milk_yandex.jpeg", "Молочные напитки"),
         "Снеки": ("/static/products/chips_yandex.png", None),
     }
     categories: dict[str, Category] = {}
@@ -61,7 +62,7 @@ async def seed_categories(session: AsyncSession):
             carbs=4.7,
             image_url="/static/products/milk_yandex.jpeg",
             discount=0,
-            category_id=categories["Молочные напитки"].id
+            category_id=categories["Молоко и сливки"].id
         )
     ]
 

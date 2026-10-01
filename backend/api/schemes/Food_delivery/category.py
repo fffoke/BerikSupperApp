@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CategoryRequest(BaseModel):
@@ -19,6 +19,7 @@ class CategoryResponse(CategoryParentRequest):
     parent_id: int | None = None
     slug: str
     id: int 
+    children: list["CategoryResponse"] = Field(default_factory=list)
 
 
 class CategoryListResponse(BaseModel):

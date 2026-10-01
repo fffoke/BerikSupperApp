@@ -7,6 +7,7 @@ import MainPage from "../pages/Main/MainPage";
 import { LinkLists } from "./linklist";
 import ContactPage from "../pages/Main/ContactPage";
 import Main from "../pages/Product_delivery/Main";
+import CartPage from "../pages/Product_delivery/CartPage";
 
 
 
@@ -46,6 +47,9 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true, element: <Main />
+            },
+            {
+                path: 'cart', element: <CartPage />
             },
             {
                 path: 'category/:slug',

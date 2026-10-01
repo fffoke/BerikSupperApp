@@ -10,7 +10,9 @@ class CategoryRepository(BaseRepository[Category]):
 
     async def get_catalog(self) -> Sequence[Category]:
         result = await self.session.scalars(
-            select(Category).where(Category.parent_id.is_(None))
+            select(Category)
+            .options(selectinload(Category.children, recursion_depth=10))
+            .where(Category.parent_id.is_(None))
         )
         return result.all()
 
@@ -23,7 +25,7 @@ class CategoryRepository(BaseRepository[Category]):
     async def get_by_parent(self, slug: str) -> Category | None:
         result = await self.session.scalar(
             select(Category)
-            .options(selectinload(Category.children))
+            .options(selectinload(Category.children, recursion_depth=10))
             .where(Category.slug == slug)
         )
 
@@ -32,18 +34,26 @@ class CategoryRepository(BaseRepository[Category]):
 
     async def get_categories_with_products(
         self,
-        slug: int
+        slug: str
     ):
         category = await self.session.scalar(
             select(Category)
-            .options(
-                selectinload(Category.products),
-                selectinload(Category.children).selectinload(Category.products),
-            )
+            .options(selectinload(Category.products))
             .where(Category.slug == slug)
         )
         if category is None:
             return []
 
-        categories = [category, *category.children]
+        categories = [category]
+        parent_ids = [category.id]
+        while parent_ids:
+            result = await self.session.scalars(
+                select(Category)
+                .options(selectinload(Category.products))
+                .where(Category.parent_id.in_(parent_ids))
+            )
+            children = list(result.all())
+            categories.extend(children)
+            parent_ids = [child.id for child in children]
+
         return [item for item in categories if item.products]

@@ -5,6 +5,7 @@ export interface CategoryResponse {
     parent_id: number | null,
     slug: string,
     id: number,
+    children: CategoryResponse[],
 }
 
 export interface ParentCategoryResponse {

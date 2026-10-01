@@ -66,3 +66,11 @@ class CartRepository(BaseRepository[CartItem]):
         )
 
         return carts.all()
+
+    async def clear_by_user(self, user_id: int) -> None:
+        carts = await self.session.scalars(
+            select(CartItem).where(CartItem.user_id == user_id)
+        )
+        for cart in carts.all():
+            await self.session.delete(cart)
+        await self.session.flush()
