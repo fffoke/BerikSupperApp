@@ -1,6 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "./ProductQuery";
-import { type RootState } from '../store'
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { authenticatedBaseQuery } from '../authenticatedBaseQuery';
 
 import type {
     CartCreateResponse, AllCartResponse,
@@ -14,19 +13,7 @@ export const CartApi = createApi({
     reducerPath: 'CartApi',
     tagTypes: ['Cart'],
 
-    baseQuery: fetchBaseQuery({
-        baseUrl: `${BASE_URL}/`,
-        prepareHeaders: (headers, { getState }) => {
-            const state = getState() as RootState
-            const auth = state.auth.auth
-
-            if (auth.is_auth && auth.access) {
-                headers.set('authorization', `Bearer ${auth.access}`)
-            }
-
-            return headers
-        },
-    }),
+    baseQuery: authenticatedBaseQuery,
 
     endpoints: (builder) => ({
         addToCart: builder.mutation<CartCreateResponse, CartCreateRequest>({

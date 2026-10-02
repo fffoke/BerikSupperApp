@@ -4,14 +4,14 @@ from sqlalchemy import select
 
 from app.services.FoodDelivery.food_delivery_service import ProductService
 from api.schemes.Food_delivery.product import CategoryProductsResponse, ProductResponse, ProductCreateRequest, ProductListResponse
-from api.dependencies import DbSession
+from api.dependencies import CurrentUser, DbSession
 from app.db.models.FoodDelivery.product_model import Product
 
 app = APIRouter()
 
 
 @app.get('/search', response_model=ProductListResponse, status_code=status.HTTP_200_OK)
-async def search_products(session: DbSession, q: str = Query(min_length=1, max_length=100)):
+async def search_products(session: DbSession, _user: CurrentUser, q: str = Query(min_length=1, max_length=100)):
     query = q.strip()
     if not query:
         return ProductListResponse(products=[])
@@ -24,6 +24,7 @@ async def search_products(session: DbSession, q: str = Query(min_length=1, max_l
 @app.get('/{id}', response_model=ProductResponse, status_code=status.HTTP_200_OK)
 async def get_product_by_id(
     session: DbSession,
+    _user: CurrentUser,
     id: int
 ):
     svc = ProductService(session)
@@ -37,6 +38,7 @@ async def get_product_by_id(
 @app.get('/slug/{slug}', response_model=ProductListResponse, status_code=status.HTTP_200_OK)
 async def get_products_by_slag(
     session: DbSession,
+    _user: CurrentUser,
     slug: str
 ):
     svc = ProductService(session)
@@ -56,6 +58,7 @@ async def get_products_by_slag(
 )
 async def get_all_parent_product(
     session: DbSession,
+    _user: CurrentUser,
     slug: str
 ):
     svc = ProductService(session)

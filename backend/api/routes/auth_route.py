@@ -1,5 +1,6 @@
 
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 
 from api.routes.auth.jwt import create_access_token, create_refresh_token, decode_token
 from api.routes.auth.password import hash_password, verify_password
@@ -25,16 +26,19 @@ async def register(
 ) -> TokenResponse:
     
     repo = UserRepository(session)
-    existing = await repo.get_by_fullname(body.full_name)
+    email = str(body.email).strip().lower()
+    existing = await repo.get_by_email(email)
 
     if existing:
-        raise HTTPException(status.HTTP_409_CONFLICT, "Fullname already registered")
+        raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
 
-    body_2 = body.model_dump()
-    password = body_2.pop('password')
-    body_2['password_hash'] = hash_password(password)
-
-    user = await repo.create(**body_2)
+    try:
+        user = await repo.create(
+            email=email,
+            password_hash=hash_password(body.password),
+        )
+    except IntegrityError:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Email already registered")
 
     return TokenResponse(
         access_token=create_access_token(user.id),
@@ -44,7 +48,7 @@ async def register(
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest, session: DbSession) -> TokenResponse:
     repo = UserRepository(session)
-    user = await repo.get_by_fullname(body.full_name)
+    user = await repo.get_by_email(str(body.email).strip().lower())
     if not user or not user.password_hash:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid credentials")
     if not verify_password(body.password, user.password_hash):

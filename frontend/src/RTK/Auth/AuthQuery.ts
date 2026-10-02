@@ -1,30 +1,18 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { type RootState } from '../store'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { authenticatedBaseQuery } from '../authenticatedBaseQuery'
 
 import type {
     UserReg, TokenResponse,
     MeResponse, UserLogin,
     AvatarUploadResponse
 } from '../../type/Auth'
-import { setMe, SetTokens } from './AuthSlice'
+import { setMe } from './AuthSlice'
 
 
 export const AuthApi = createApi({
     reducerPath: 'AuthApi',
 
-    baseQuery: fetchBaseQuery({
-        baseUrl: '/',
-        prepareHeaders: (headers, { getState }) => {
-            const state = getState() as RootState
-            const auth = state.auth.auth
-
-            if (auth.is_auth && auth.access) {
-                headers.set('authorization', `Bearer ${auth.access}`)
-            }
-
-            return headers
-        },
-    }),
+    baseQuery: authenticatedBaseQuery,
 
     endpoints: (builder) => ({
         getMe: builder.query<MeResponse, void>({
@@ -35,9 +23,7 @@ export const AuthApi = createApi({
 
                     dispatch(setMe(data))
 
-                } catch (e) {
-                    console.log(e)
-                }
+                } catch { /* The route guard handles an invalid session. */ }
             }
         }),
         postRegister: builder.mutation<TokenResponse, UserReg>({
@@ -46,18 +32,6 @@ export const AuthApi = createApi({
                 method: 'POST',
                 body,
             }),
-            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-                try {
-                    const { data } = await queryFulfilled
-
-                    dispatch(SetTokens(data))
-
-                    dispatch(AuthApi.endpoints.getMe.initiate(undefined, { forceRefetch: true }))
-                } catch (e) {
-                    console.log(e)
-                }
-            }
-
         }),
         postLogin: builder.mutation<TokenResponse, UserLogin>({
             query: (body) => ({
@@ -65,17 +39,6 @@ export const AuthApi = createApi({
                 method: 'POST',
                 body,
             }),
-            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-                try {
-                    const { data } = await queryFulfilled
-
-                    dispatch(SetTokens(data))
-                    dispatch(AuthApi.endpoints.getMe.initiate(undefined, { forceRefetch: true }))
-                } catch (e) {
-                    console.log(e)
-                }
-            }
-
         }),
 
         uploadAvatar: builder.mutation<AvatarUploadResponse, File>({

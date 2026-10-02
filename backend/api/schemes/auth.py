@@ -1,29 +1,19 @@
 
 
 
-from pydantic import BaseModel, EmailStr, model_validator
+from pydantic import BaseModel, EmailStr, Field
 
 class RegisterRequest(BaseModel):
     model_config = {"extra": "forbid"}
 
-    email: EmailStr | None = None
-    password: str
-    full_name: str 
-    phone: str | None = None
-    avatar_url: str | None = None
-
-
-    @model_validator(mode="after")
-    def validate_password_length(self) -> "RegisterRequest":
-        if len(self.password) < 5:
-            raise ValueError("Password must be at least 8 characters")
-        return self
+    email: EmailStr = Field(max_length=200)
+    password: str = Field(min_length=8)
     
 
 class LoginRequest(BaseModel):
     model_config = {"extra": "forbid"}
 
-    full_name: str
+    email: EmailStr
     password: str
 
 

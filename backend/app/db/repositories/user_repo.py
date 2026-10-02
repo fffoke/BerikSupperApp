@@ -1,13 +1,12 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.db.repositories.base import BaseRepository
 from app.db.models.user_model import User
 
 class UserRepository(BaseRepository[User]):
     model = User
-    
-    async def get_by_fullname(self, full_name: str):
-        result = await self.session.execute(
-            select(User).where((User.full_name) == full_name)
+
+    async def get_by_email(self, email: str) -> User | None:
+        return await self.session.scalar(
+            select(User).where(func.lower(User.email) == email.lower())
         )
-        return result.scalar_one_or_none()

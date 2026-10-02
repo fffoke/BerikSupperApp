@@ -3,6 +3,8 @@ from uuid import uuid4
 
 from fastapi import APIRouter, UploadFile, File
 
+from api.dependencies import CurrentAdmin, CurrentUser
+
 
 router = APIRouter()
 
@@ -12,7 +14,7 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @router.post("/product")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_product_image(_admin: CurrentAdmin, file: UploadFile = File(...)):
     # расширение файла
     ext = file.filename.split(".")[-1]
 
@@ -29,7 +31,7 @@ async def upload_image(file: UploadFile = File(...)):
         "image_url": f"/static/products/{filename}"
     }
 @router.post("/category")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_category_image(_admin: CurrentAdmin, file: UploadFile = File(...)):
     # расширение файла
     ext = file.filename.split(".")[-1]
 
@@ -43,11 +45,12 @@ async def upload_image(file: UploadFile = File(...)):
         buffer.write(content)
 
     return {
-        "image_url": f"/static/products/{filename}"
+        "image_url": f"/static/categories/{filename}"
     }
 
 @router.post("/avatar")
-async def upload_image(
+async def upload_avatar_image(
+    _user: CurrentUser,
     file: UploadFile = File(...),
 ):
     # расширение файла

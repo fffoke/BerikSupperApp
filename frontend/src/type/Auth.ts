@@ -1,11 +1,8 @@
 import type { User } from "./User"
 
 export interface UserReg {
-    email?: string
+    email: string
     password: string
-    full_name: string
-    phone: string
-    avatar_url?: string
 }
 
 
@@ -28,14 +25,14 @@ export interface TokenResponse {
 export interface MeResponse {
     id: number
     email?: string
-    full_name: string
+    full_name: string | null
     role: string
     avatar_url?: string
 }
 
 
 export interface UserLogin {
-    full_name: string
+    email: string
     password: string
 }
 

@@ -1,14 +1,13 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import type { CategoryProductsResponse, ParentCategoryResponse, ProductDetail, ProductListResponse } from "../../type/Food_delivery/Product";
+import { authenticatedBaseQuery } from "../authenticatedBaseQuery";
 
 export const BASE_URL = ''
 
 export const ProductApi = createApi({
     reducerPath: 'ProductApi',
 
-    baseQuery: fetchBaseQuery({
-        baseUrl: BASE_URL + '/'
-    }),
+    baseQuery: authenticatedBaseQuery,
 
     endpoints: (builder) => ({
 

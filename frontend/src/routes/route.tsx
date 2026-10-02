@@ -8,6 +8,7 @@ import { LinkLists } from "./linklist";
 import ContactPage from "../pages/Main/ContactPage";
 import Main from "../pages/Product_delivery/Main";
 import CartPage from "../pages/Product_delivery/CartPage";
+import RequireAuth from "./RequireAuth";
 
 
 
@@ -26,38 +27,27 @@ export const router = createBrowserRouter([
         ]
     },
     {
-        path: '/todo',
-        element: <Loyalt linkList={LinkLists[1]} />,
+        element: <RequireAuth />,
         children: [
             {
-                index: true, element: <Home />
+                path: '/todo',
+                element: <Loyalt linkList={LinkLists[1]} />,
+                children: [
+                    { index: true, element: <Home /> },
+                    { path: '*', element: <NotFoundPage /> },
+                    { path: 'todos', element: <TodoList /> },
+                ],
             },
             {
-                path: '*', element: <NotFoundPage />
+                path: '/food_delivery',
+                element: <Loyalt linkList={LinkLists[2]} />,
+                children: [
+                    { index: true, element: <Main /> },
+                    { path: 'cart', element: <CartPage /> },
+                    { path: 'search', element: <Main /> },
+                    { path: 'category/:slug', element: <Main /> },
+                ],
             },
-            {
-                path: 'todos', element: <TodoList />
-            }
-        ]
-    },
-
-    {
-        path: '/food_delivery',
-        element: <Loyalt linkList={LinkLists[2]} />,
-        children: [
-            {
-                index: true, element: <Main />
-            },
-            {
-                path: 'cart', element: <CartPage />
-            },
-            {
-                path: 'search', element: <Main />
-            },
-            {
-                path: 'category/:slug',
-                element: <Main />
-            }
         ]
     },
 ])

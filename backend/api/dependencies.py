@@ -52,7 +52,7 @@ async def get_current_user_jwt(
 async def get_current_admin(
     user: Annotated[User, Depends(get_current_user_jwt)],
 ) -> User:
-    if user.role not in ('admin'):
+    if user.role != 'admin':
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin required",

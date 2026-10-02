@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../RTK/store";
 import { clearAll } from "../../RTK/Auth/AuthSlice";
 import { CartApi } from "../../RTK/Food_delivery/CartQuery";
+import { AuthApi } from "../../RTK/Auth/AuthQuery";
+import { ProductApi } from "../../RTK/Food_delivery/ProductQuery";
 import AuthModal from "./Auth/AuthModal";
 import BasicModel from "./BasicModel";
 import { BASE_URL } from "../../RTK/Food_delivery/ProductQuery";
@@ -24,12 +26,19 @@ export default function Header({ linkList }: Props) {
     const [isOpen, setIsOpen] = useState<boolean>(false)
     const [search, setSearch] = useState('')
     useEffect(() => {
+        const state = location.state as { authRequired?: boolean } | null
+        if (state?.authRequired && !auth.is_auth) setIsOpen(true)
+    }, [location.key, location.state, auth.is_auth])
+    useEffect(() => {
         if (location.pathname === '/food_delivery/search') {
             setSearch(new URLSearchParams(location.search).get('q') ?? '')
         }
     }, [location.pathname, location.search])
     const logOut = () => {
+        navigate('/', { replace: true, state: null })
         dispatch(clearAll())
+        dispatch(AuthApi.util.resetApiState())
+        dispatch(ProductApi.util.resetApiState())
         dispatch(CartApi.util.resetApiState())
     }
     if (linkList.appName === 'Food Delivery') {
@@ -49,7 +58,7 @@ export default function Header({ linkList }: Props) {
                         <Link to="/" className="hidden text-sm text-gray-500 hover:text-gray-900 lg:inline">Все приложения</Link>
                         {auth.is_auth ? (
                             <>
-                                <span className="hidden text-sm font-medium text-gray-800 sm:inline">{auth.me?.full_name}</span>
+                                <span className="hidden text-sm font-medium text-gray-800 sm:inline">{auth.me?.email || auth.me?.full_name}</span>
                                 <button type="button" onClick={logOut} aria-label="Выйти" className="rounded-full bg-gray-100 p-3 text-gray-700"><FiLogOut /></button>
                             </>
                         ) : (
@@ -110,7 +119,7 @@ export default function Header({ linkList }: Props) {
                                         />
 
                                         <span className="text-sm font-medium">
-                                            {auth.me?.full_name}
+                                            {auth.me?.email || auth.me?.full_name}
                                         </span>
                                         <button onClick={logOut}>LogOut</button>
                                     </div>

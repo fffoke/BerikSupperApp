@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.services.FoodDelivery.category_service import CategoryService
 from api.schemes.Food_delivery.category import CategoryListResponse, CategoryResponse
-from api.dependencies import DbSession
+from api.dependencies import CurrentUser, DbSession
 
 app = APIRouter()
 
@@ -15,7 +15,8 @@ app = APIRouter()
         summary='Возврощаем все родительские категорий'
 )
 async def get_parent_category(
-    session: DbSession
+    session: DbSession,
+    _user: CurrentUser,
 ):
     svc = CategoryService(session)
 
@@ -33,7 +34,8 @@ async def get_parent_category(
 )
 async def get_parent_category(
     session: DbSession,
-    slug: str
+    slug: str,
+    _user: CurrentUser,
 ):
     svc = CategoryService(session)
 
