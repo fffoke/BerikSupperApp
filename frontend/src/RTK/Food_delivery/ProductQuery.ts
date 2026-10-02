@@ -30,6 +30,10 @@ export const ProductApi = createApi({
 
         getAllParentProduct: builder.query<CategoryProductsResponse[], string>({
             query: (slug) => `api/v1/product/parent/${slug}`
+        }),
+
+        searchProducts: builder.query<ProductListResponse, string>({
+            query: (query) => `api/v1/product/search?q=${encodeURIComponent(query)}`
         })
     })
 
@@ -41,4 +45,5 @@ export const {
     useGetParentCategoryQuery,
     useGetProductByIdQuery,
     useGetProductsBySlagQuery,
+    useSearchProductsQuery,
 } = ProductApi

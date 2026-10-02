@@ -1,11 +1,24 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
+from sqlalchemy import select
 
 
 from app.services.FoodDelivery.food_delivery_service import ProductService
 from api.schemes.Food_delivery.product import CategoryProductsResponse, ProductResponse, ProductCreateRequest, ProductListResponse
 from api.dependencies import DbSession
+from app.db.models.FoodDelivery.product_model import Product
 
 app = APIRouter()
+
+
+@app.get('/search', response_model=ProductListResponse, status_code=status.HTTP_200_OK)
+async def search_products(session: DbSession, q: str = Query(min_length=1, max_length=100)):
+    query = q.strip()
+    if not query:
+        return ProductListResponse(products=[])
+    products = await session.scalars(
+        select(Product).where(Product.name.ilike(f'%{query}%')).order_by(Product.name).limit(60)
+    )
+    return ProductListResponse(products=list(products.all()))
 
 
 @app.get('/{id}', response_model=ProductResponse, status_code=status.HTTP_200_OK)

@@ -52,6 +52,9 @@ export const router = createBrowserRouter([
                 path: 'cart', element: <CartPage />
             },
             {
+                path: 'search', element: <Main />
+            },
+            {
                 path: 'category/:slug',
                 element: <Main />
             }

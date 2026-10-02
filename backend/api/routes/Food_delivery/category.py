@@ -20,7 +20,6 @@ async def get_parent_category(
     svc = CategoryService(session)
 
     categorys = await svc.repo.get_catalog()
-    print(categorys)
     return CategoryListResponse(
         categorys = [ CategoryResponse.model_validate(c) for c in categorys ]
     )

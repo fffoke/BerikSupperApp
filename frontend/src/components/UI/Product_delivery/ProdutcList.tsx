@@ -1,12 +1,16 @@
 import ProductCard from './ProductCard';
 import { useGetAllParentProductQuery } from '../../../RTK/Food_delivery/ProductQuery';
+import { Link } from 'react-router-dom';
+import type { CategoryResponse } from '../../../type/Food_delivery/Product';
 
 
 type Props = {
-    slug: string
+    slug: string;
+    flat?: boolean;
+    children?: CategoryResponse[];
 }
 
-export default function ProductList({ slug }: Props) {
+export default function ProductList({ slug, flat = false, children = [] }: Props) {
     const { data, isLoading, error } = useGetAllParentProductQuery(slug)
     // Блок обработки состояний (вёрстка заглушек)
     if (isLoading) {
@@ -34,29 +38,36 @@ export default function ProductList({ slug }: Props) {
         );
     }
 
-    const categories = data || [];
+    const order = new Map(children.map((child, index) => [child.name, index]));
+    const categories = [...(data || [])].sort((a, b) =>
+        (order.get(a.category_name) ?? Infinity) - (order.get(b.category_name) ?? Infinity)
+    );
 
     if (categories.length === 0) {
         return (
-            <div className="p-6 text-center text-gray-400">
-                Товары не найдены
+            <div className="rounded-3xl bg-gray-50 p-8 text-center text-gray-500">
+                В этом разделе пока нет товаров.
             </div>
         );
     }
 
     // Основная разметка ленты
     return (
-        <div className="flex flex-col gap-12 p-8 bg-white w-full">
+        <div className="flex w-full flex-col gap-12 bg-white">
             {categories.map((category, index) => (
                 <section key={index} className="w-full">
 
-                    {/* Заголовок подкатегории */}
-                    <h2 className="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">
-                        {category.category_name}
-                    </h2>
+                    {!flat && (
+                        <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
+                            {children.find((child) => child.name === category.category_name) ? (
+                                <Link to={`/food_delivery/category/${children.find((child) => child.name === category.category_name)?.slug}`} className="hover:underline">
+                                    {category.category_name}
+                                </Link>
+                            ) : category.category_name}
+                        </h2>
+                    )}
 
-                    {/* Умная адаптивная сетка, которая держит размер карточки */}
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(145px,1fr))] gap-x-3 gap-y-6 w-full">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3">
                         {category.products.map((product) => (
                             <ProductCard
                                 key={product.id}

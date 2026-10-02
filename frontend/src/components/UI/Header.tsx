@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useTheme } from "../../hooks/useTheme"
 import type { linkList } from "../../type/linkList"
 import ThemeToggle from "./TehemeChangeEl"
-import { FiLogOut } from 'react-icons/fi';
-import { useState } from "react";
+import { FiLogOut, FiSearch } from 'react-icons/fi';
+import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../RTK/store";
 import { clearAll } from "../../RTK/Auth/AuthSlice";
 import { CartApi } from "../../RTK/Food_delivery/CartQuery";
@@ -18,11 +18,48 @@ type Props = {
 export default function Header({ linkList }: Props) {
     const { theme, toggle } = useTheme()
     const dispatch = useAppDispatch()
+    const location = useLocation()
+    const navigate = useNavigate()
     const auth = useAppSelector((state) => state.auth.auth)
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [search, setSearch] = useState('')
+    useEffect(() => {
+        if (location.pathname === '/food_delivery/search') {
+            setSearch(new URLSearchParams(location.search).get('q') ?? '')
+        }
+    }, [location.pathname, location.search])
     const logOut = () => {
         dispatch(clearAll())
         dispatch(CartApi.util.resetApiState())
+    }
+    if (linkList.appName === 'Food Delivery') {
+        return (
+            <header className="relative z-50 border-b border-gray-100 bg-white">
+                <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
+                    <Link to="/food_delivery" aria-label="Главная страница магазина" className="flex shrink-0 items-center gap-2 font-extrabold text-gray-950">
+                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-500 text-2xl font-black text-white">B</span>
+                        <span className="hidden text-lg sm:inline">Berik Лавка</span>
+                    </Link>
+                    <form onSubmit={(event) => { event.preventDefault(); navigate(search.trim() ? `/food_delivery/search?q=${encodeURIComponent(search.trim())}` : '/food_delivery') }} className="order-3 flex w-full items-center gap-2 rounded-2xl bg-gray-100 px-4 py-3 sm:order-2 sm:max-w-[480px] sm:flex-1">
+                        <button type="submit" aria-label="Найти товары" className="text-xl text-gray-700"><FiSearch /></button>
+                        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Найти в магазине" aria-label="Поиск товаров" className="min-w-0 flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400" />
+                    </form>
+                    <span className="order-2 rounded-2xl border border-gray-200 px-4 py-2 text-sm text-gray-600 sm:order-3">Демо-каталог</span>
+                    <div className="order-2 ml-auto flex items-center gap-3 sm:order-4">
+                        <Link to="/" className="hidden text-sm text-gray-500 hover:text-gray-900 lg:inline">Все приложения</Link>
+                        {auth.is_auth ? (
+                            <>
+                                <span className="hidden text-sm font-medium text-gray-800 sm:inline">{auth.me?.full_name}</span>
+                                <button type="button" onClick={logOut} aria-label="Выйти" className="rounded-full bg-gray-100 p-3 text-gray-700"><FiLogOut /></button>
+                            </>
+                        ) : (
+                            <button type="button" onClick={() => setIsOpen(true)} className="rounded-full bg-gray-100 px-5 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-200">Войти</button>
+                        )}
+                    </div>
+                </div>
+                <BasicModel isOpen={isOpen} onClose={setIsOpen} children={<AuthModal onClose={setIsOpen} />} />
+            </header>
+        )
     }
     return (
         <header className="relative z-50">

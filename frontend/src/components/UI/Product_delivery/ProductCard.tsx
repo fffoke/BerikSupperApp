@@ -28,14 +28,14 @@ export default function ProductCard({ id, name, price, image_url, volume, discou
     }
 
     return (
-        <div className="flex flex-col bg-white rounded-3xl p-2 w-full max-w-[210px] transition-all duration-200 select-none">
+        <div className="flex w-full select-none flex-col rounded-3xl bg-white p-1 transition-all duration-200">
 
             {/* 1. КАРТИНКА, СКИДКА И УПРАВЛЕНИЕ КОЛИЧЕСТВОМ */}
             <div className="relative aspect-square w-full bg-[#F5F5F7] rounded-[24px] overflow-hidden flex items-center justify-center mb-3">
                 <img
                     src={image_url ? BASE_URL + image_url : '/static/CategoryUnavailable@2x.png'}
                     alt={name}
-                    className="w-full h-full object-contain p-4"
+                    className="h-full w-full object-contain p-2"
                 />
 
                 {/* Бейджик скидки (снизу слева) */}

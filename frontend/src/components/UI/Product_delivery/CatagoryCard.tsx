@@ -1,49 +1,78 @@
-import { useGetCatalogQuery } from '../../../RTK/Food_delivery/ProductQuery';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { BASE_URL } from '../../../RTK/Food_delivery/ProductQuery';
+import type { CategoryResponse } from '../../../type/Food_delivery/Product';
+import { orderRoots } from './SideBar';
 
-const CategoryGrid = () => {
-    const { data, isLoading, error } = useGetCatalogQuery();
-    const navigate = useNavigate();
+const COLORS = ['#ffbd32', '#ffecb2', '#b1edfa', '#f7e1b7', '#e6f5d0', '#f3e3ef'];
 
-    if (isLoading) return <div className="p-6">Загрузка категорий...</div>;
-    if (error) return <div role="alert" className="p-6 text-red-600">Не удалось загрузить каталог.</div>;
-    if (!data?.categorys.length) return <div className="p-6 text-gray-500">Каталог пока пуст.</div>;
+export function CategoryTiles({ categories }: { categories: CategoryResponse[] }) {
+    return (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {categories.map((category, index) => {
+                const isBanner = category.image_url?.endsWith('.webp');
+                return (
+                    <Link
+                        key={category.id}
+                        to={`/food_delivery/category/${category.slug}`}
+                        className="group relative block aspect-[2.1/1] overflow-hidden rounded-[30px] transition active:scale-[0.98]"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    >
+                        {category.image_url && (
+                            <img
+                                src={BASE_URL + category.image_url}
+                                alt=""
+                                className={`absolute h-full transition duration-300 group-hover:scale-105 ${isBanner ? 'inset-0 w-full object-cover' : 'bottom-0 right-0 w-[58%] object-contain'}`}
+                            />
+                        )}
+                        <h3 className="relative z-10 max-w-[68%] p-5 text-xl font-bold leading-tight text-gray-950 sm:text-2xl">{category.name}</h3>
+                    </Link>
+                );
+            })}
+        </div>
+    );
+}
 
+const featured = [
+    { name: '«Из Лавки»', image: '/static/categories/iz-lavki-banner.webp', target: 'Пицца' },
+    { name: '«Лавка 100»', image: '/static/categories/lavka-100-banner.webp', target: 'Сырники и запеканки' },
+];
+
+function findByName(categories: CategoryResponse[], name: string): CategoryResponse | undefined {
+    for (const category of categories) {
+        if (category.name === name) return category;
+        const child = findByName(category.children, name);
+        if (child) return child;
+    }
+}
+
+export default function CatalogHome({ categories }: { categories: CategoryResponse[] }) {
+    const roots = orderRoots(categories);
+    const readyFood = roots.find((category) => category.name === 'Готовая еда');
+    const rest = roots.filter((category) => category.id !== readyFood?.id);
 
     return (
-        <section className="p-6">
-            <h2 className="text-3xl font-bold mb-6 text-gray-900">Каталог</h2>
-
-            {/* Сетка: 1 колонка на мобилках, 2 на средних экранах, 3 на больших */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {data?.categorys.map((category) => (
-                    <div
-                        key={category.id}
-                        onClick={() => navigate(`/food_delivery/category/${category.slug}`)}
-                        className="relative group cursor-pointer overflow-hidden rounded-[32px] h-[200px] transition-transform active:scale-95"
-                    >
-                        {/* Изображение категории как фон */}
-                        <img
-                            src={category.image_url ? `${BASE_URL}${category.image_url}` : '/static/CategoryUnavailable@2x.png'}
-                            alt={category.name}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-
-                        {/* Текст внутри картинки (как в Лавке - сверху слева) */}
-                        <div className="relative z-10 p-6 h-full flex flex-col justify-start">
-                            <h3 className="text-2xl font-bold leading-tight text-gray-900 max-w-[180px]">
-                                «{category.name}»
-                            </h3>
-                        </div>
-
-                        {/* Легкое затемнение или высветление, если картинки слишком яркие */}
-                        <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
-                    </div>
-                ))}
-            </div>
-        </section>
+        <div className="mx-auto flex max-w-[980px] flex-col gap-14 px-5 py-7 sm:px-8">
+            <section>
+                <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl">Придумано Яндекс Лавкой</h1>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {featured.map((item) => (
+                        <Link key={item.name} to={`/food_delivery/category/${findByName(roots, item.target)?.slug ?? ''}`} className="group relative block aspect-[2.1/1] overflow-hidden rounded-[30px] bg-sky-100 transition active:scale-[0.98]">
+                            <img src={item.image} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                            <h2 className="relative z-10 p-5 text-xl font-bold text-gray-950 sm:text-2xl">{item.name}</h2>
+                        </Link>
+                    ))}
+                </div>
+            </section>
+            {readyFood && (
+                <section>
+                    <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl">Готовая еда</h2>
+                    <CategoryTiles categories={readyFood.children} />
+                </section>
+            )}
+            <section>
+                <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl">Каталог</h2>
+                <CategoryTiles categories={rest} />
+            </section>
+        </div>
     );
-};
-
-export default CategoryGrid;
+}
