@@ -19,7 +19,7 @@ export default function Loyalt({ linkList }: Props) {
                     <Outlet />
                 </main>
 
-                {linkList.appName !== 'Food Delivery' && <Footer />}
+                {linkList.id !== 'food' && <Footer />}
             </div>
         </>
     )

@@ -4,7 +4,8 @@ export type Links = {
 }
 
 export type linkList = {
+    id: 'hub' | 'todo' | 'food'
     appName: string
-    image: string[]
+    homePath: string
     links: Links[]
 }

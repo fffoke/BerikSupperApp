@@ -2,45 +2,30 @@ import type { linkList } from "../type/linkList"
 
 export const LinkLists: linkList[] = [
     {
-        image: ['/static/blacklogo.png', '/static/whitelogo.png'],
-        appName: '',
+        id: 'hub',
+        appName: 'Приложения',
+        homePath: '/',
         links: [
-            // {
-            //     path: '/todo',
-            //     pathText: 'Home'
-            // },
-            // {
-            //     path: '/todo/todos',
-            //     pathText: 'Todos'
-            // }
+            { path: '/', pathText: 'Обзор' },
+            { path: '/contact', pathText: 'Контакты' },
         ]
     },
     {
-        image: ['https://img.icons8.com/?size=100&id=ACLAf31fuu2O&format=png&color=000000'],
-        appName: 'todoApp',
+        id: 'todo',
+        appName: 'Задачи',
+        homePath: '/todo',
         links: [
-            {
-                path: '/todo',
-                pathText: 'Home'
-            },
-            {
-                path: '/todo/todos',
-                pathText: 'Todos'
-            }
+            { path: '/todo', pathText: 'О проекте' },
+            { path: '/todo/todos', pathText: 'Мои задачи' },
         ]
     },
     {
-        image: ['/static/food_delivery.png'],
-        appName: 'Food Delivery',
+        id: 'food',
+        appName: 'Магазин',
+        homePath: '/food_delivery',
         links: [
-            {
-                path: '/food_delivery',
-                pathText: 'Main'
-            },
-            {
-                path: '',
-                pathText: ''
-            }
+            { path: '/food_delivery', pathText: 'Каталог' },
+            { path: '/food_delivery/cart', pathText: 'Корзина' },
         ]
     }
 ]

@@ -1,156 +1,190 @@
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useTheme } from "../../hooks/useTheme"
-import type { linkList } from "../../type/linkList"
-import ThemeToggle from "./TehemeChangeEl"
-import { FiLogOut, FiSearch } from 'react-icons/fi';
-import { useEffect, useState } from "react";
-import { useAppSelector, useAppDispatch } from "../../RTK/store";
-import { clearAll } from "../../RTK/Auth/AuthSlice";
-import { CartApi } from "../../RTK/Food_delivery/CartQuery";
-import { AuthApi } from "../../RTK/Auth/AuthQuery";
-import { ProductApi } from "../../RTK/Food_delivery/ProductQuery";
-import AuthModal from "./Auth/AuthModal";
-import BasicModel from "./BasicModel";
-import { BASE_URL } from "../../RTK/Food_delivery/ProductQuery";
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+    ChevronDown, LayoutGrid, ListTodo, LogOut, Menu, Moon,
+    Search, ShoppingBag, Sun, X,
+} from 'lucide-react';
+import { useTheme } from '../../hooks/useTheme';
+import { useAppDispatch, useAppSelector } from '../../RTK/store';
+import { clearAll } from '../../RTK/Auth/AuthSlice';
+import { AuthApi } from '../../RTK/Auth/AuthQuery';
+import { ProductApi } from '../../RTK/Food_delivery/ProductQuery';
+import { CartApi } from '../../RTK/Food_delivery/CartQuery';
+import { LinkLists } from '../../routes/linklist';
+import type { linkList } from '../../type/linkList';
+import AuthModal from './Auth/AuthModal';
+import BasicModel from './BasicModel';
 
-type Props = {
-    linkList: linkList
+function AppIcon({ id, size = 18 }: { id: linkList['id']; size?: number }) {
+    const Icon = id === 'todo' ? ListTodo : id === 'food' ? ShoppingBag : LayoutGrid;
+    return <Icon size={size} strokeWidth={2.1} aria-hidden="true" />;
 }
 
-export default function Header({ linkList }: Props) {
-    const { theme, toggle } = useTheme()
-    const dispatch = useAppDispatch()
-    const location = useLocation()
-    const navigate = useNavigate()
-    const auth = useAppSelector((state) => state.auth.auth)
-    const [isOpen, setIsOpen] = useState<boolean>(false)
-    const [search, setSearch] = useState('')
+export default function Header({ linkList }: { linkList: linkList }) {
+    const { theme, toggle } = useTheme();
+    const dispatch = useAppDispatch();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const auth = useAppSelector((state) => state.auth.auth);
+    const [authOpen, setAuthOpen] = useState(false);
+    const [appsOpen, setAppsOpen] = useState(false);
+    const [accountOpen, setAccountOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const accountRef = useRef<HTMLDivElement>(null);
+    const isFood = linkList.id === 'food';
+    const accountName = auth.me.email || auth.me.full_name || 'Аккаунт';
+
     useEffect(() => {
-        const state = location.state as { authRequired?: boolean } | null
-        if (state?.authRequired && !auth.is_auth) setIsOpen(true)
-    }, [location.key, location.state, auth.is_auth])
+        const state = location.state as { authRequired?: boolean } | null;
+        if (state?.authRequired && !auth.is_auth) setAuthOpen(true);
+    }, [location.key, location.state, auth.is_auth]);
+
     useEffect(() => {
-        if (location.pathname === '/food_delivery/search') {
-            setSearch(new URLSearchParams(location.search).get('q') ?? '')
-        }
-    }, [location.pathname, location.search])
+        setSearch(location.pathname === '/food_delivery/search'
+            ? new URLSearchParams(location.search).get('q') ?? ''
+            : '');
+        setAppsOpen(false);
+        setAccountOpen(false);
+    }, [location.pathname, location.search]);
+
+    useEffect(() => {
+        const closeMenus = (event: MouseEvent | KeyboardEvent) => {
+            if (event instanceof KeyboardEvent) {
+                if (event.key === 'Escape') {
+                    setAppsOpen(false);
+                    setAccountOpen(false);
+                }
+            } else if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
+                setAccountOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', closeMenus);
+        document.addEventListener('keydown', closeMenus);
+        return () => {
+            document.removeEventListener('mousedown', closeMenus);
+            document.removeEventListener('keydown', closeMenus);
+        };
+    }, []);
+
     const logOut = () => {
-        navigate('/', { replace: true, state: null })
-        dispatch(clearAll())
-        dispatch(AuthApi.util.resetApiState())
-        dispatch(ProductApi.util.resetApiState())
-        dispatch(CartApi.util.resetApiState())
-    }
-    if (linkList.appName === 'Food Delivery') {
-        return (
-            <header className="relative z-50 border-b border-gray-100 bg-white">
-                <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
-                    <Link to="/food_delivery" aria-label="Главная страница магазина" className="flex shrink-0 items-center gap-2 font-extrabold text-gray-950">
-                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-500 text-2xl font-black text-white">B</span>
-                        <span className="hidden text-lg sm:inline">Berik Лавка</span>
-                    </Link>
-                    <form onSubmit={(event) => { event.preventDefault(); navigate(search.trim() ? `/food_delivery/search?q=${encodeURIComponent(search.trim())}` : '/food_delivery') }} className="order-3 flex w-full items-center gap-2 rounded-2xl bg-gray-100 px-4 py-3 sm:order-2 sm:max-w-[480px] sm:flex-1">
-                        <button type="submit" aria-label="Найти товары" className="text-xl text-gray-700"><FiSearch /></button>
-                        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Найти в магазине" aria-label="Поиск товаров" className="min-w-0 flex-1 bg-transparent text-gray-900 outline-none placeholder:text-gray-400" />
-                    </form>
-                    <span className="order-2 rounded-2xl border border-gray-200 px-4 py-2 text-sm text-gray-600 sm:order-3">Демо-каталог</span>
-                    <div className="order-2 ml-auto flex items-center gap-3 sm:order-4">
-                        <Link to="/" className="hidden text-sm text-gray-500 hover:text-gray-900 lg:inline">Все приложения</Link>
-                        {auth.is_auth ? (
-                            <>
-                                <span className="hidden text-sm font-medium text-gray-800 sm:inline">{auth.me?.email || auth.me?.full_name}</span>
-                                <button type="button" onClick={logOut} aria-label="Выйти" className="rounded-full bg-gray-100 p-3 text-gray-700"><FiLogOut /></button>
-                            </>
-                        ) : (
-                            <button type="button" onClick={() => setIsOpen(true)} className="rounded-full bg-gray-100 px-5 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-200">Войти</button>
-                        )}
-                    </div>
-                </div>
-                <BasicModel isOpen={isOpen} onClose={setIsOpen} children={<AuthModal onClose={setIsOpen} />} />
-            </header>
-        )
-    }
+        setAccountOpen(false);
+        navigate('/', { replace: true, state: null });
+        dispatch(clearAll());
+        dispatch(AuthApi.util.resetApiState());
+        dispatch(ProductApi.util.resetApiState());
+        dispatch(CartApi.util.resetApiState());
+    };
+
+    const searchProducts = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const query = search.trim();
+        navigate(query ? `/food_delivery/search?q=${encodeURIComponent(query)}` : '/food_delivery');
+    };
+
+    const appIsActive = (app: linkList) => app.id === 'hub'
+        ? location.pathname === '/' || location.pathname === '/contact'
+        : location.pathname === app.homePath || location.pathname.startsWith(`${app.homePath}/`);
+
+    const sectionIsActive = (path: string) => {
+        if (isFood && path === '/food_delivery') return !location.pathname.startsWith('/food_delivery/cart');
+        return location.pathname === path;
+    };
+
+    const appLinks = LinkLists.map((app) => (
+        <Link
+            key={app.id}
+            to={app.homePath}
+            onClick={() => setAppsOpen(false)}
+            aria-current={appIsActive(app) ? 'page' : undefined}
+            className={`flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors ${appIsActive(app)
+                ? 'bg-[#fce000] text-slate-950'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'}`}
+        >
+            <AppIcon id={app.id} />
+            <span>{app.appName}</span>
+        </Link>
+    ));
+
     return (
-        <header className="relative z-50">
-            <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
-                <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-                    <div className="flex items-center">
-                        <div className="w-48 h-16 flex items-center justify-center">
-                            <img
-                                src={linkList.image.length > 1 && theme === 'dark' ? linkList.image[1] : linkList.image[0]}
-                                alt="logo"
-                                className="max-h-full max-w-full object-contain"
-                            />
-                        </div>
-                        <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">{linkList.appName}</span>
-                    </div>
-                    <div className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1 " id="mobile-menu-2">
-                        <ul className="flex  flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                            {linkList.links.map((el) => (
-                                <li key={el.path}>
-                                    <Link to={el.path} className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-                                        {el.pathText}
-                                    </Link>
-                                </li>
-                            ))}
+        <header className="relative z-50 border-b border-slate-200 bg-white text-slate-950 shadow-[0_6px_24px_-20px_rgba(15,23,42,0.4)] dark:border-slate-800 dark:bg-slate-950 dark:text-white">
+            <div className="mx-auto max-w-[1800px] px-4 sm:px-6 xl:px-8">
+                <div className="flex h-[70px] items-center gap-3">
+                    <Link to="/" aria-label="Главная страница Berik Super App" className="group flex shrink-0 items-center gap-2.5">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-[15px] bg-[#fce000] text-lg font-black text-slate-950 transition-transform group-hover:rotate-[-7deg]">B</span>
+                        <span className="hidden text-[15px] font-extrabold tracking-tight sm:inline">Berik <span className="font-medium text-slate-400">Super App</span></span>
+                    </Link>
 
-                            {/* <li>
-                                <Link to={'/todo/erorr'} className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-                                    404 Error
-                                </Link>
-                            </li> */}
-                            <li>
-                                <ThemeToggle toggle={toggle} theme={theme} />
-                            </li>
-                            <li>
-                                <Link to={'/'} className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-                                    <div className="flex items-center justify-center">
-                                        Exit.  <FiLogOut />
-                                    </div>
-                                </Link>
-                            </li>
-                            <li>
-                                {auth.is_auth ? (
-                                    <div className="flex items-center gap-3">
-                                        <img
-                                            src={auth.me?.avatar_url ? BASE_URL + auth.me.avatar_url : '/static/appLogo.png'}
-                                            alt="avatar"
-                                            className="h-8 w-8 rounded-full object-cover"
-                                        />
+                    <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-slate-200 dark:bg-slate-700 sm:block xl:hidden" />
+                    <span className="flex min-w-0 items-center gap-2 text-sm font-bold sm:text-base xl:hidden">
+                        <AppIcon id={linkList.id} size={20} />
+                        <span className="truncate">{linkList.appName}</span>
+                    </span>
 
-                                        <span className="text-sm font-medium">
-                                            {auth.me?.email || auth.me?.full_name}
-                                        </span>
-                                        <button onClick={logOut}>LogOut</button>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => {
+                    <nav aria-label="Приложения" className="ml-5 hidden items-center gap-1 xl:flex">
+                        {appLinks}
+                    </nav>
 
-                                                setIsOpen(true)
-                                            }}
-                                            className="px-3 py-2 text-sm rounded-md bg-gray-200 dark:bg-gray-700"
-                                        >
-                                            Вход
+                    <div className="ml-auto flex shrink-0 items-center gap-2">
+                        <button type="button" onClick={toggle} aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'} title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'} className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+                            {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
+                        </button>
+
+                        {auth.is_auth ? (
+                            <div ref={accountRef} className="relative">
+                                <button type="button" onClick={() => setAccountOpen((open) => !open)} aria-expanded={accountOpen} aria-haspopup="menu" aria-label="Меню аккаунта" className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 px-1.5 pr-2.5 transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">
+                                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white dark:bg-[#fce000] dark:text-slate-950">{accountName.charAt(0).toUpperCase()}</span>
+                                    <span className="hidden max-w-[160px] truncate text-xs font-semibold sm:block">{accountName}</span>
+                                    <ChevronDown size={15} className={`text-slate-400 transition-transform ${accountOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {accountOpen && (
+                                    <div role="menu" className="absolute right-0 top-[calc(100%+10px)] w-64 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-900">
+                                        <p className="truncate px-3 py-2 text-xs text-slate-500 dark:text-slate-400" title={accountName}>{accountName}</p>
+                                        <button type="button" role="menuitem" onClick={logOut} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">
+                                            <LogOut size={17} /> Выйти из аккаунта
                                         </button>
                                     </div>
                                 )}
-                            </li>
+                            </div>
+                        ) : (
+                            <button type="button" onClick={() => setAuthOpen(true)} className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-slate-700 dark:bg-[#fce000] dark:text-slate-950 dark:hover:bg-yellow-300">Войти</button>
+                        )}
 
-                        </ul>
+                        <button type="button" onClick={() => setAppsOpen((open) => !open)} aria-label={appsOpen ? 'Закрыть меню приложений' : 'Открыть меню приложений'} aria-expanded={appsOpen} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 xl:hidden">
+                            {appsOpen ? <X size={20} /> : <Menu size={20} />}
+                        </button>
                     </div>
                 </div>
-            </nav>
-            <BasicModel
-                isOpen={isOpen}
-                onClose={setIsOpen}
-                children={<AuthModal onClose={setIsOpen} />}
-            />
+
+                <div className={`flex flex-col gap-3 border-t border-slate-100 py-2.5 dark:border-slate-800 sm:flex-row sm:items-center ${isFood ? 'sm:justify-between' : ''}`}>
+                    <nav aria-label={`Разделы: ${linkList.appName}`} className={`flex min-w-0 gap-1 overflow-x-auto ${isFood ? 'order-2 sm:order-1' : ''}`}>
+                        {linkList.links.map((item) => (
+                            <Link key={item.path} to={item.path} aria-current={sectionIsActive(item.path) ? 'page' : undefined} className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${sectionIsActive(item.path)
+                                ? 'bg-slate-900 text-white dark:bg-[#fce000] dark:text-slate-950'
+                                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}`}>
+                                {item.pathText}
+                            </Link>
+                        ))}
+                    </nav>
+
+                    {isFood && (
+                        <form onSubmit={searchProducts} role="search" className="order-1 flex h-10 w-full items-center gap-2 rounded-xl bg-slate-100 px-3 text-slate-500 transition-colors focus-within:ring-2 focus-within:ring-[#fce000] dark:bg-slate-800 dark:text-slate-300 sm:order-2 sm:max-w-[420px]">
+                            <button type="submit" aria-label="Найти товары" className="rounded-lg p-1 transition hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700 dark:hover:text-white"><Search size={18} /></button>
+                            <input value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Поиск товаров" placeholder="Найти товар в магазине" className="min-w-0 flex-1 bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400 dark:text-white" />
+                            {search && <button type="button" onClick={() => setSearch('')} aria-label="Очистить поиск" className="rounded-full p-1 hover:bg-slate-200 dark:hover:bg-slate-700"><X size={15} /></button>}
+                        </form>
+                    )}
+                </div>
+            </div>
+
+            {appsOpen && (
+                <nav aria-label="Меню приложений" className="grid grid-cols-1 gap-1 border-t border-slate-100 px-4 py-3 dark:border-slate-800 sm:grid-cols-3 sm:px-6 xl:hidden">
+                    {appLinks}
+                </nav>
+            )}
+
+            <BasicModel isOpen={authOpen} onClose={setAuthOpen}>
+                <AuthModal onClose={setAuthOpen} />
+            </BasicModel>
         </header>
-    )
+    );
 }
-
-
-// Источник на хедер я взял с https://flowbite.com/blocks/marketing/header/
-// Источник для иконки взял с https://icons8.com/icons/set/todo-list    
